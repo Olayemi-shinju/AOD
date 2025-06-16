@@ -1,0 +1,43 @@
+.modal {
+  transform: translateX(100%);
+  opacity: 0;
+  transition: transform 9s ease-out, opacity 0.4s ease-out;
+}
+
+.modal-open {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.modal-backdrop {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.modal-backdrop-show {
+  opacity: 1;
+}
+
+
+  /* modal.css */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.rotate {
+  transition: transform 0.5s ease;
+}
+
+.rotate:hover {
+  transform: rotate(180deg);
+}
+
+.text:hover{
+  transition: transform 0.5s ease;
+ 
+}

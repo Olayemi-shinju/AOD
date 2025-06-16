@@ -1,0 +1,19 @@
+.button{
+    transition: .7s ease-in-out;
+}
+
+.button:hover{
+    background-color: rgb(55, 55, 246);
+}
+
+.changes{
+    transition: .8s ease-in-out;
+    color: rgb(162, 160, 160);
+}
+.changes:hover{
+    background-color: rgb(55, 55, 246);
+    color: white;
+}
+.leaflet-container {
+    z-index: 0 !important;
+  }

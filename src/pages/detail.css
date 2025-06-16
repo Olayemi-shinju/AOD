@@ -1,0 +1,22 @@
+.wish{
+    transition: .7s ease-in-out;
+}
+.wish:hover{
+    background-color: black;
+    color: white;
+}
+
+.btn{
+    transition: .7s ease-in-out;
+}
+.btn:hover{
+    background-color: white;
+    color: rgb(47, 47, 185);
+}
+.profile-btn{
+    transition: .8s ease-in-out;
+}
+.profile-btn:hover{
+    background-color: white;
+    color: black;
+}

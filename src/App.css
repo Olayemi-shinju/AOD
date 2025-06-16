@@ -1,0 +1,5 @@
+.hover:hover {
+    transition: transform 0.5s ease-in-out;
+    transform: scale(1.05); /* or scale(1.05) for both X and Y */
+    background-color: #e5f2ff;
+  }

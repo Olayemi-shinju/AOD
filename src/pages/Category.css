@@ -1,0 +1,45 @@
+.text{
+    transition: .9s ease-out;
+}
+.text:hover{
+    background-color: white;
+    color: black;
+}
+.change{
+    transition: 1s ease-in-out;
+}
+.change:hover{
+    background-color: black;
+    color: white;
+}
+.product-card {
+    position: relative;
+  }
+  
+  .icon {
+    position: absolute;         /* Now they are ON the card */
+    left: 16px;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: transform 0.6s ease, opacity 0.6s ease;
+  }
+  
+  .icon:nth-child(1) {
+    top: 16px;
+  }
+  
+  .icon:nth-child(2) {
+    top: 72px;
+    transition-delay: 0.15s;
+  }
+  
+  .icon:nth-child(3) {
+    top: 128px;
+    transition-delay: 0.3s;
+  }
+  
+  .product-card:hover .icon {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  
