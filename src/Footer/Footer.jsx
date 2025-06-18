@@ -36,21 +36,21 @@ const Footer = () => {
                 <div>
                     <ul>
                         <h1 className='text-xl font-bold'>My Account</h1>
-                        <Link><li className='text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'>• Track Orders</li></Link>
-                        <Link><li className='text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'>• Energy Calculator</li></Link>
-                        <Link><li className='text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'>• Wishlist</li></Link>
-                        <Link><li className='text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'>• My Account</li></Link>
+                        <Link to='/profile'><li className='text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'>• Track Orders</li></Link>
+                        <Link to='/energy-calculator'><li className='text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'>• Energy Calculator</li></Link>
+                        <Link to='/'><li className='text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'>• Wishlist</li></Link>
+                        <Link to='/profile'><li className='text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'>• My Account</li></Link>
 
                     </ul>
                 </div>
                 <div>
                     <ul>
                         <h1 className='text-xl font-bold'>Information</h1>
-                        <Link><li className='text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'>• About Us</li></Link>
+                        <Link to='/about'><li className='text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'>• About Us</li></Link>
                         <Link><li className='text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'>• Privacy Policy</li></Link>
                         <Link><li className='text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'>• Terms & Conditions</li></Link>
                         <Link><li className='text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'>• Return Policy</li></Link>
-                        <Link><li className='text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'>• Contact Us</li></Link>
+                        <Link to='/contact'><li className='text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'>• Contact Us</li></Link>
 
 
                     </ul>

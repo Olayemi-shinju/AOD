@@ -129,3 +129,6 @@ const Modal = ({ open, handleClose }) => {
 };
 
 export default Modal;
+
+
+

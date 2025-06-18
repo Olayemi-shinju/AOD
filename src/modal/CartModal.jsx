@@ -43,7 +43,7 @@ const ShoppingCartDrawer = () => {
                     <span>₦170,100</span>
                 </div>
 
-                <Link to="/cart">
+                <Link to="/cart" onClick={closeCartModal}>
                     <button className="w-full cursor-pointer bg-black text-white py-2 rounded mb-3 text-sm font-semibold hover:opacity-90">
                         View Cart
                     </button>

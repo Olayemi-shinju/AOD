@@ -19,6 +19,7 @@ import OTPForm from './Authentication/Otp'
 import Cart from './pages/Cart'
 import Home from './pages/Home'
 import EnergyCalculators from './pages/EnergyCalculators'
+import NotFound from './pages/NotFound.jsx'
 
 function App() {
   return (
@@ -31,7 +32,7 @@ function App() {
           <Routes>
             {/* Add your routes here */}
             <Route path='/' element={<Home/>}/>
-
+            <Route path='*' element={<NotFound/>}/>
             <Route path='/cart' element={<Cart/>}/>
             <Route path='/energy-calculator' element={<EnergyCalculators/>}/>
             <Route path='/reset-password' element={<ResetPasswordPage/>}/>
