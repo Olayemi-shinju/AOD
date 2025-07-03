@@ -4,6 +4,8 @@ import { MdOutlineClose } from "react-icons/md";
 import { Link } from "react-router-dom";
 import './modal.css'
 import '../Navigations/SecondNav.css'
+import logo from '../assets/Logo.png'
+
 const Modal = ({ open, handleClose }) => {
     const modalRef = useRef(null);
   
@@ -37,10 +39,9 @@ const Modal = ({ open, handleClose }) => {
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex items-center justify-between w-[100%] px-2 pt-4">
-                    <div className="flex-col w-[10%] leading-2 text-blue-700">
-                        <h1 className="text-2xl font-bold">AOD</h1>
-                        <p className="text-sm font-extralight">Solatricity</p>
-                    </div>
+                     <div className=' lg:flex xl:flex'>
+                                <img src={logo} alt="" className="w-[80px]"/>
+                            </div>
                     <div
                         className="bg-gray-200 cursor-pointer  w-[30px] h-[30px] flex items-center justify-center font-bold text-lg"
                         onClick={handleClose}
@@ -48,7 +49,7 @@ const Modal = ({ open, handleClose }) => {
                         <MdOutlineClose className="rotate"/>
                     </div>
                 </div>
-                <div className='px-7 py-4 w-[full] bg-blue-600 hover cursor-pointer mt-14' onClick={handleOpen}>
+                <div className='px-7 py-4 w-[full] bg-blue-600 catHover cursor-pointer mt-8' onClick={handleOpen}>
                     <div className='flex items-center justify-between' >
                         <div className='flex items-center gap-2'>
                             <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M0 1C0 0.447715 0.447715 0 1 0H15C15.5523 0 16 0.447715 16 1C16 1.55228 15.5523 2 15 2H1C0.447715 2 0 1.55228 0 1ZM0 7C0 6.44772 0.447715 6 1 6H17C17.5523 6 18 6.44772 18 7C18 7.55228 17.5523 8 17 8H1C0.447715 8 0 7.55228 0 7ZM1 12C0.447715 12 0 12.4477 0 13C0 13.5523 0.447715 14 1 14H11C11.5523 14 12 13.5523 12 13C12 12.4477 11.5523 12 11 12H1Z" fill="currentColor" color='white'></path></svg>
@@ -108,7 +109,7 @@ const Modal = ({ open, handleClose }) => {
                             <hr className='w-[full] border-[0.1px] border-gray-100 my-3' />
                         </div>
                         <div className='flex flex-col gap-4'>
-                            <Link to='/shop'> <li className='text-sm texts' onClick={handleClose}>Shop</li></Link>
+                            <Link to='/categories'> <li className='text-sm texts' onClick={handleClose}>Shop</li></Link>
                             <hr className='w-[full] border-[0.1px] border-gray-100 my-3' />
                         </div>
                         <div className='flex flex-col gap-4'>

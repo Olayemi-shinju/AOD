@@ -6,15 +6,17 @@ import { IoLogoTwitter } from "react-icons/io";
 import { FaLinkedinIn } from "react-icons/fa";
 import { CiMail } from "react-icons/ci";
 import { CiLocationOn } from "react-icons/ci";
+import logo from '../assets/Logo.png'
 
 const Footer = () => {
     return (
         <div className='lg:px-14 px-5 shadow py-10 lg:py-28'>
             <div className='grid lg:grid-cols-4 2xl:grid-cols-4 xl:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-15'>
                 <div>
-                    <div className='flex-col w-[10%] leading-2 text-blue-700'>
-                        <h1 className='text-2xl font-bold'>AOD</h1>
-                        <p className='text-sm font-extralight'>Solatricity</p>
+                    <div className='flex-col w-[40%] leading-2 text-blue-700 lg:flex xl:flex'>
+                        <Link to='/'>
+                            <img src={logo} alt="" />
+                        </Link>
                     </div>
                     <p className='mt-4 text-lg leading-6'>Online solar marketplace for Africans seeking to meet their energy needs</p>
                     <div className='mt-5 flex cursor-pointer items-center gap-3'>
@@ -38,7 +40,7 @@ const Footer = () => {
                         <h1 className='text-xl font-bold'>My Account</h1>
                         <Link to='/profile'><li className='text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'>• Track Orders</li></Link>
                         <Link to='/energy-calculator'><li className='text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'>• Energy Calculator</li></Link>
-                        <Link to='/'><li className='text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'>• Wishlist</li></Link>
+                        <Link to='/wish'><li className='text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'>• Wishlist</li></Link>
                         <Link to='/profile'><li className='text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'>• My Account</li></Link>
 
                     </ul>

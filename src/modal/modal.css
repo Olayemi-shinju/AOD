@@ -9,6 +9,9 @@
   opacity: 1;
 }
 
+.z{
+  z-index: 9999999;
+}
 .modal-backdrop {
   opacity: 0;
   transition: opacity 0.3s ease;

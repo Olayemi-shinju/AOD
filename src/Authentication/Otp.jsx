@@ -1,13 +1,22 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const OTPForm = () => {
+  const email = localStorage.getItem('email');
   const OTP_LENGTH = 6;
   const RESEND_TIME = 30;
 
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(''));
   const [timeLeft, setTimeLeft] = useState(RESEND_TIME);
   const [resendAvailable, setResendAvailable] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const inputsRef = useRef([]);
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (timeLeft === 0) {
@@ -68,23 +77,52 @@ const OTPForm = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const enteredOtp = otp.join('');
-    if (enteredOtp.length === OTP_LENGTH) {
-      alert(`OTP Entered: ${enteredOtp}`);
-    } else {
-      alert('Please complete the OTP.');
+    if (enteredOtp.length !== OTP_LENGTH) {
+      setError('Please complete the OTP.');
+      return;
+    }
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await axios.post('http://localhost:7000/api/v1/verifyOtp', {
+        otp: enteredOtp,
+        email,
+      });
+      if (response.data.success === true) {
+        navigate('/login')
+        console.log(response)
+        toast.success(response?.data.msg);
+        console.log('hello world')
+        setOtp(Array(OTP_LENGTH).fill(''));
+      } else {
+        toast.error(response?.data.msg);
+      }
+    } catch (err) {
+      toast.error(err.response.data?.msg);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleResend = () => {
-    // Simulate resending OTP here
-    // alert('OTP has been resent!');
+  const resendOtp = async () => {
     setOtp(Array(OTP_LENGTH).fill(''));
     setTimeLeft(RESEND_TIME);
     setResendAvailable(false);
     inputsRef.current[0]?.focus();
+    setError(null);
+
+    try {
+      const resp = await axios.post('http://localhost:7000/api/v1/resend-otp', { email });
+      if (resp.data.success === true) {
+        toast.success(resp.data.data.msg);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   return (
@@ -97,7 +135,8 @@ const OTPForm = () => {
               key={index}
               ref={(el) => (inputsRef.current[index] = el)}
               type="text"
-              maxLength="6"
+              inputMode="numeric"
+              maxLength="1"
               value={digit}
               onChange={(e) => handleChange(e, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
@@ -105,19 +144,31 @@ const OTPForm = () => {
             />
           ))}
         </div>
+
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+          disabled={loading}
+          className={`w-full flex justify-center items-center gap-2 bg-blue-600 text-white py-2 rounded-md transition ${loading ? 'opacity-60 cursor-not-allowed' : 'hover:bg-blue-700'
+            }`}
         >
-          Submit OTP
+          {loading ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Verifying...</span>
+            </>
+          ) : (
+            'Submit OTP'
+          )}
         </button>
+
+        {error && <p className="text-sm text-red-600">{error}</p>}
 
         <div className="text-sm text-gray-600 text-center">
           {resendAvailable ? (
             <button
-              onClick={handleResend}
+              onClick={resendOtp}
               type="button"
-              className="text-blue-600 hover:underline mt-2"
+              className="text-blue-600 cursor-pointer hover:underline mt-2"
             >
               Resend OTP
             </button>

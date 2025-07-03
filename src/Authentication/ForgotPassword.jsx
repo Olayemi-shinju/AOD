@@ -1,8 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const ForgotPasswordPage = () => {
+    const [email, setEmail] = useState('')
+    const [error, setError] = useState('')
+     
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        try {
+            if (!email) {
+                setError('Pls Fill the Field')
+                return
+            }
+
+            const resp = await axios.post('http://localhost:7000/api/v1/forgot-password', {email})
+            if (resp.data.success === true) {
+                toast.success(resp.data.msg)
+            } else {
+                toast.error(resp.data.msg)
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.msg)
+        }
+    }
     return (
         <div className="py-7 flex items-center justify-center bg-gray-50 px-4">
             <motion.form
@@ -23,12 +46,19 @@ const ForgotPasswordPage = () => {
                 <div className="space-y-4">
                     <input
                         type="email"
+                        name='email'
+                        onChange={(e) => setEmail(e.target.value)}
+                        value={email}
                         placeholder="Email Address"
                         className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
+                    {
+                        error && <p className="h-5 text-lg text-red-600 p-2">{error}</p>
+                    }
 
                     <button
                         type="submit"
+                        onClick={handleSubmit}
                         className="w-full wish cursor-pointer bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-900 transition"
                     >
                         Send Reset Link

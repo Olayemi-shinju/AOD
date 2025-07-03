@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { TfiTruck } from "react-icons/tfi";
 import { LuDollarSign } from "react-icons/lu";
@@ -10,97 +10,21 @@ import { motion } from "framer-motion";
 import { FiShoppingCart } from 'react-icons/fi';
 import { GrView } from 'react-icons/gr';
 import { BsHeart } from 'react-icons/bs';
+import axios from 'axios';
+import { CartContext } from '../Contexts/Context';
 
 const Home = () => {
+  const { addToWishlist, addToCart } = useContext(CartContext)
   const [imageLoaded, setImageLoaded] = useState({});
-
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [products, setProducts] = useState([])
   const handleImageLoad = (id) => {
     setImageLoaded((prev) => ({ ...prev, [id]: true }));
   };
-  const product = [
-    {
-      id: 1,
-      image: 'https://firebasestorage.googleapis.com/v0/b/ecoflux-51b0a.appspot.com/o/1734709519279images.jpg?alt=media&token=99ec8c12-a51e-4909-a998-5ee7ab8dad14',
-      name: 'Alpha Solar Panel',
-      descp: ' The SMK 11kVA Hybrid Inverter is a robust and scalable energy solution designed for both residential and commercial applications...',
-      title: 'solar/img',
-      price: '100000',
-    },
-    {
-      id: 2,
-      image: 'https://firebasestorage.googleapis.com/v0/b/ecoflux-51b0a.appspot.com/o/1734709519279images.jpg?alt=media&token=99ec8c12-a51e-4909-a998-5ee7ab8dad14',
-      name: 'Gamma Solar Panel',
-      descp: ' The SMK 11kVA Hybrid Inverter is a robust and scalable energy solution designed for both residential and commercial applications...',
-      title: 'solar/img',
-      price: '200000',
-    },
-    {
-      id: 4,
-      image: 'https://firebasestorage.googleapis.com/v0/b/ecoflux-51b0a.appspot.com/o/1734709519279images.jpg?alt=media&token=99ec8c12-a51e-4909-a998-5ee7ab8dad14',
-      name: 'Zeta Solar Panel',
-      title: 'solar/img',
-      descp: ' The SMK 11kVA Hybrid Inverter is a robust and scalable energy solution designed for both residential and commercial applications...',
-      price: '500000',
-    },
-    {
-      id: 5,
-      image: 'https://firebasestorage.googleapis.com/v0/b/ecoflux-51b0a.appspot.com/o/1734709519279images.jpg?alt=media&token=99ec8c12-a51e-4909-a998-5ee7ab8dad14',
-      name: 'Zeta Solar Panel',
-      title: 'solar/img',
-      descp: ' The SMK 11kVA Hybrid Inverter is a robust and scalable energy solution designed for both residential and commercial applications...',
-      price: '500000',
-    },
-    {
-      id: 6,
-      image: 'https://firebasestorage.googleapis.com/v0/b/ecoflux-51b0a.appspot.com/o/1734709519279images.jpg?alt=media&token=99ec8c12-a51e-4909-a998-5ee7ab8dad14',
-      name: 'Zeta Solar Panel',
-      title: 'solar/img',
-      descp: ' The SMK 11kVA Hybrid Inverter is a robust and scalable energy solution designed for both residential and commercial applications...',
-      price: '500000',
-    },
-    {
-      id: 7,
-      image: 'https://firebasestorage.googleapis.com/v0/b/ecoflux-51b0a.appspot.com/o/1734709519279images.jpg?alt=media&token=99ec8c12-a51e-4909-a998-5ee7ab8dad14',
-      name: 'Zeta Solar Panel',
-      title: 'solar/img',
-      descp: ' The SMK 11kVA Hybrid Inverter is a robust and scalable energy solution designed for both residential and commercial applications...',
-      price: '500000',
-    },
-    {
-      id: 8,
-      image: 'https://firebasestorage.googleapis.com/v0/b/ecoflux-51b0a.appspot.com/o/1734709519279images.jpg?alt=media&token=99ec8c12-a51e-4909-a998-5ee7ab8dad14',
-      name: 'Zeta Solar Panel',
-      title: 'solar/img',
-      descp: ' The SMK 11kVA Hybrid Inverter is a robust and scalable energy solution designed for both residential and commercial applications...',
-      price: '500000',
-    },
-    {
-      id: 9,
-      image: 'https://firebasestorage.googleapis.com/v0/b/ecoflux-51b0a.appspot.com/o/1734709519279images.jpg?alt=media&token=99ec8c12-a51e-4909-a998-5ee7ab8dad14',
-      name: 'Zeta Solar Panel',
-      title: 'solar/img',
-      descp: ' The SMK 11kVA Hybrid Inverter is a robust and scalable energy solution designed for both residential and commercial applications...',
-      price: '500000',
-    },
-    {
-      id: 10,
-      image: 'https://firebasestorage.googleapis.com/v0/b/ecoflux-51b0a.appspot.com/o/1734709519279images.jpg?alt=media&token=99ec8c12-a51e-4909-a998-5ee7ab8dad14',
-      name: 'Zeta Solar Panel',
-      title: 'solar/img',
-      descp: ' The SMK 11kVA Hybrid Inverter is a robust and scalable energy solution designed for both residential and commercial applications...',
-      price: '500000',
-    },
-    {
-      id: 11,
-      image: 'https://firebasestorage.googleapis.com/v0/b/ecoflux-51b0a.appspot.com/o/1734709519279images.jpg?alt=media&token=99ec8c12-a51e-4909-a998-5ee7ab8dad14',
-      name: 'Zeta Solar Panel',
-      title: 'solar/img',
-      descp: ' The SMK 11kVA Hybrid Inverter is a robust and scalable energy solution designed for both residential and commercial applications...',
-      price: '500000',
-    },
-  ];
-  const [currentSlide, setCurrentSlide] = useState(0);
 
+  const limit = 16
+
+  // slider begin function
   const slides = [
     {
       bgColor: 'bg-[#e3edf6]',
@@ -164,8 +88,6 @@ const Home = () => {
     }
   ];
 
-
-
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
   };
@@ -182,6 +104,29 @@ const Home = () => {
     return () => clearInterval(interval); // Cleanup on unmount
   }, [currentSlide]);
 
+  // Fetch products on page load
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const resp = await axios.get(
+          `http://localhost:7000/api/v1/get-all-product?limit=${limit}`
+        );
+        if (resp.data.success) {
+          setProducts(resp.data.data);
+        } else {
+          setProducts([]);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchProduct();
+  }, []);
+
+  // Filter functions
+  const getTrendingProducts = () => products.filter(p => p.isTrending === true)
+  const getNewArrivalProducts = () => products.filter(p => p.isNewArrival === true)
 
   return (
     <>
@@ -292,61 +237,66 @@ const Home = () => {
         </div>
       </section>
 
-
-
       {/* products trending */}
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1.5 }}
-      >
-        <div className='grid py-10 px-14 gap-3 lg:grid-cols-4 xl:grid-cols-4 md:grid-cols-2 2xl:grid-cols-4 grid-cols-1'>
-          {product.map((e, index) => (
-            <div key={index} className='p-4 border border-gray-100 rounded-lg'>
-              <div className='flex relative flex-col gap-4 cursor-pointer product-card'>
-                <div className='absolute top-2 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon'>
-                  <FiShoppingCart />
-                </div>
-                <div className='absolute top-12 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-1'>
-                  <GrView />
-                </div>
-                <div className='absolute top-20 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-2'>
-                  <BsHeart />
-                </div>
-                <Link to={`/detail/${e.id}`}>
-                  <div className='w-full h-[250px] bg-gray-100 bg-opacity-50 flex justify-center items-center relative'>
-                    {!imageLoaded[e.id] && (
-                      <div className='absolute inset-0 flex justify-center items-center'>
-                        <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900'></div>
-                      </div>
-                    )}
-                    <img
-                      src={e.image}
-                      alt={e.title}
-                      className={`w-full h-full object-cover ${!imageLoaded[e.id] ? 'invisible' : ''}`}
-                      onLoad={() => handleImageLoad(e.id)}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                      }}
-                    />
+      {getTrendingProducts().length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.5 }}
+        >
+          {/* Heading */}
+          <p className='text-3xl font-bold px-18 pt-18 pb-2 text-gray-800'>
+            Trending Products
+          </p>
+
+          <div className='grid py-4 px-14 gap-3 lg:grid-cols-4 xl:grid-cols-4 md:grid-cols-2 2xl:grid-cols-4 grid-cols-1'>
+            {getTrendingProducts().map((e, index) => (
+              <div key={index} className='p-4 border border-gray-100 rounded-lg'>
+                <div className='flex relative flex-col gap-4 cursor-pointer product-card'>
+                  <div
+                    onClick={() => addToCart(e._id, 1)}
+                    className='absolute top-2 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon cursor-pointer'
+                  >
+                    <FiShoppingCart />
                   </div>
-                </Link>
 
+                  <div className='absolute top-12 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-1'>
+                    <GrView />
+                  </div>
+                  <div onClick={() => addToWishlist(e._id)} className='absolute top-20 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-2'>
+                    <BsHeart />
+                  </div>
+                  <Link to={`/detail/${e.slug}`}>
+                    <div className='w-full h-[250px] bg-gray-100 bg-opacity-50 flex justify-center items-center relative'>
+                      {!imageLoaded[e.id] && (
+                        <div className='absolute inset-0 flex justify-center items-center'>
+                          <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900'></div>
+                        </div>
+                      )}
+                      <img
+                        src={e.images[0]}
+                        alt={e.title}
+                        className={`w-full h-full object-cover ${!imageLoaded[e.id] ? 'invisible' : ''}`}
+                        onLoad={() => handleImageLoad(e.id)}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  </Link>
 
-
-                <div>
-                  <p className='text-xl'>{e.name}</p>
-                  <p className='font-semibold'>₦{Number(e.price).toLocaleString()}</p>
+                  <div>
+                    <p className='text-xl'>{e.name}</p>
+                    <p className='font-semibold'>₦{Number(e.price).toLocaleString()}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
-      </motion.div>
-
-
-      {/* bg for sho */}
+      {/* bg for shop */}
       <section className="w-[90%] xl:w-[82%] mx-auto my-10">
         <div className="bg-blue-400 text-white rounded-lg px-6 py-10 md:px-16 md:py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-10">
@@ -373,61 +323,65 @@ const Home = () => {
         </div>
       </section>
 
+      {/* new arrivals */}
+      {getNewArrivalProducts().length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.5 }}
+        >
+          <p className='text-3xl font-bold px-18 pt-18 pb-2 text-gray-800'>
+            New Arrivals
+          </p>
 
-
-      {/* grid new arrival */}
-
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1.5 }}
-      >
-        <div className='grid py-10 px-14 gap-3 lg:grid-cols-4 xl:grid-cols-4 md:grid-cols-2 2xl:grid-cols-4 grid-cols-1'>
-          {product.map((e, index) => (
-            <div key={index} className='p-4 border border-gray-100 rounded-lg'>
-              <div className='flex relative flex-col gap-4 cursor-pointer product-card'>
-                <div className='absolute top-2 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon'>
-                  <FiShoppingCart />
-                </div>
-                <div className='absolute top-12 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-1'>
-                  <GrView />
-                </div>
-                <div className='absolute top-20 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-2'>
-                  <BsHeart />
-                </div>
-                <Link to={`/detail/${e.id}`}>
-                  <div className='w-full h-[250px] bg-gray-100 bg-opacity-50 flex justify-center items-center relative'>
-                    {!imageLoaded[e.id] && (
-                      <div className='absolute inset-0 flex justify-center items-center'>
-                        <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900'></div>
-                      </div>
-                    )}
-                    <img
-                      src={e.image}
-                      alt={e.title}
-                      className={`w-full h-full object-cover ${!imageLoaded[e.id] ? 'invisible' : ''}`}
-                      onLoad={() => handleImageLoad(e.id)}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                      }}
-                    />
+          <div className='grid py-4 px-14 gap-3 lg:grid-cols-4 xl:grid-cols-4 md:grid-cols-2 2xl:grid-cols-4 grid-cols-1'>
+            {getNewArrivalProducts().map((e, index) => (
+              <div key={index} className='p-4 border border-gray-100 rounded-lg'>
+                <div className='flex relative flex-col gap-4 cursor-pointer product-card'>
+                  <div
+                    onClick={() => addToCart(e._id, 1)}
+                    className='absolute top-2 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon cursor-pointer'
+                  >
+                    <FiShoppingCart />
                   </div>
-                </Link>
 
+                  <div className='absolute top-12 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-1'>
+                    <GrView />
+                  </div>
+                  <div onClick={() => addToWishlist(e._id)} className='absolute top-20 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-2'>
+                    <BsHeart />
+                  </div>
+                  <Link to={`/detail/${e.slug}`}>
+                    <div className='w-full h-[250px] bg-gray-100 bg-opacity-50 flex justify-center items-center relative'>
+                      {!imageLoaded[e.id] && (
+                        <div className='absolute inset-0 flex justify-center items-center'>
+                          <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900'></div>
+                        </div>
+                      )}
+                      <img
+                        src={e.images[0]}
+                        alt={e.title}
+                        className={`w-full h-full object-cover ${!imageLoaded[e.id] ? 'invisible' : ''}`}
+                        onLoad={() => handleImageLoad(e.id)}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  </Link>
 
-
-                <div>
-                  <p className='text-xl'>{e.name}</p>
-                  <p className='font-semibold'>₦{Number(e.price).toLocaleString()}</p>
+                  <div>
+                    <p className='text-xl'>{e.name}</p>
+                    <p className='font-semibold'>₦{Number(e.price).toLocaleString()}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-
-      </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      )}
     </>
   );
-}
+};
 
 export default Home;
