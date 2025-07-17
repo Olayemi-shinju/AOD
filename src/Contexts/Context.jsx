@@ -1,4 +1,3 @@
-// src/Contexts/Context.js
 import axios from "axios";
 import { createContext, useEffect, useState, useCallback } from "react";
 import { toast } from "react-toastify";
@@ -19,10 +18,18 @@ export const CartProvider = ({ children }) => {
   const [cartTotal, setCartTotal] = useState(0);
   const [loadingWishlist, setLoadingWishlist] = useState(false);
   const [loadingCart, setLoadingCart] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false); // NEW
   const [openModal, setOpenModal] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
 
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const token = user?.token;
+
+  // Log errors only in development
+  const logError = (message, error) => {
+    if (import.meta.env.MODE === "development") {
+      console.error(message, error);
+    }
+  };
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -42,34 +49,42 @@ export const CartProvider = ({ children }) => {
     const fetchUserData = async () => {
       if (!user?.id) return;
       try {
-        const resp = await axios.get(
-          `http://localhost:7000/api/v1/get-single-user/${user.id}`
-        );
+        const resp = await axios.get(`${VITE_API_BASE_URL}/get-single-user/${user.id}`, {
+          headers: {Authorization: `Bearer ${token}`}
+        });
         setData(resp.data.data);
+
         if (token) {
           await getMyWishlist();
           await getUserCart();
         }
       } catch (error) {
-        console.error("Error fetching user:", error);
-        toast.error("Failed to fetch user data.");
+        logError("Error fetching user:", error);
+        if (error.response && error.response.status === 404) {
+          toast.error("Your account has been deleted. Logging out.");
+          localStorage.removeItem("user");
+          setUser(null);
+          window.location.href = "/register";
+        } else {
+          toast.error("Failed to fetch user data.");
+        }
       }
     };
 
     fetchUserData();
   }, [user?.id]);
 
-  // ---------------- WISHLIST ---------------- //
+  // ------------------- WISHLIST ------------------- //
   const getMyWishlist = useCallback(async () => {
     if (!token) return;
     try {
       setLoadingWishlist(true);
-      const resp = await axios.get("http://localhost:7000/api/v1/wishlist/me", {
+      const resp = await axios.get(`${VITE_API_BASE_URL}/wishlist/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setWishlist(resp.data.data || []);
     } catch (error) {
-      console.error("Failed to fetch wishlist", error);
+      logError("Failed to fetch wishlist", error);
       toast.error("Failed to fetch wishlist.");
     } finally {
       setLoadingWishlist(false);
@@ -77,10 +92,10 @@ export const CartProvider = ({ children }) => {
   }, [token]);
 
   const addToWishlist = async (productId) => {
-    if (!token) return toast.error("Please login to add to wishlist.");
+    if (!token) return (window.location.href = "/login");
     try {
       await axios.post(
-        `http://localhost:7000/api/v1/wishlist/add/${productId}`,
+        `${VITE_API_BASE_URL}/wishlist/add/${productId}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -88,16 +103,16 @@ export const CartProvider = ({ children }) => {
       await getUserCart();
       toast.success("Product added to wishlist!");
     } catch (error) {
-      console.error("Add to wishlist failed", error);
+      logError("Add to wishlist failed", error);
       toast.error(error.response?.data?.msg || "Failed to add product.");
     }
   };
 
   const addToWishlist2 = async (productId) => {
-    if (!token) return toast.error("Please login to add to wishlist.");
+    if (!token) return (window.location.href = "/login");
     try {
       await axios.post(
-        `http://localhost:7000/api/v1/add-to-wishlist/${productId}`,
+        `${VITE_API_BASE_URL}/add-to-wishlist/${productId}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -105,80 +120,59 @@ export const CartProvider = ({ children }) => {
       await getUserCart();
       toast.success("Product added to wishlist!");
     } catch (error) {
-      console.error("Add to wishlist failed", error);
-      toast.error(error.response?.data?.msg || "Failed to add product.");
+      logError("Add to wishlist failed", error);
+      toast.error(error.response?.data?.message);
     }
   };
 
   const removeFromWishlist = async (wishlistId) => {
     if (!token) return toast.error("Please login to modify wishlist.");
     try {
-      setActionLoading(true); // start
+      setActionLoading(true);
       await axios.delete(
-        `http://localhost:7000/api/v1/wishlist/remove/${wishlistId}`,
+        `${VITE_API_BASE_URL}/wishlist/remove/${wishlistId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       await getMyWishlist();
       toast.info("Product removed from wishlist.");
     } catch (error) {
-      console.error("Remove from wishlist failed", error);
+      logError("Remove from wishlist failed", error);
       toast.error("Failed to remove product.");
     } finally {
-      setActionLoading(false); // end
+      setActionLoading(false);
     }
   };
 
   const clearWishlist = async () => {
     if (!token) return toast.error("Please login to clear wishlist.");
     try {
-      setActionLoading(true); // start
-      await axios.delete(`http://localhost:7000/api/v1/wishlist/clear`, {
+      setActionLoading(true);
+      await axios.delete(`${VITE_API_BASE_URL}/wishlist/clear`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setWishlist([]);
       toast.info("Wishlist cleared.");
     } catch (error) {
-      console.error("Clear wishlist failed", error);
+      logError("Clear wishlist failed", error);
       toast.error("Failed to clear wishlist.");
     } finally {
-      setActionLoading(false); // end
+      setActionLoading(false);
     }
   };
 
-  // ---------------- CART ---------------- //
+  // ------------------- CART ------------------- //
   const getUserCart = async () => {
     if (!token) return;
     try {
       setLoadingCart(true);
-      const res = await axios.get("http://localhost:7000/api/v1/me", {
+      const res = await axios.get(`${VITE_API_BASE_URL}/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCart(res.data);
     } catch (error) {
-      console.error("Failed to fetch cart", error);
+      logError("Failed to fetch cart", error);
     } finally {
       setLoadingCart(false);
-    }
-  };
-
-  const addToCart2 = async (productId, quantity) => {
-    if (!token) return (window.location.href = "/login");
-    try {
-      setActionLoading(true); // start
-      const res = await axios.post(
-        "http://localhost:7000/api/v1/add-to-cart",
-        { productId, quantity },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      await getUserCart();
-      await getMyWishlist();
-      toast.success("Added to cart!");
-      return res.data;
-    } catch (error) {
-      console.error("Add to cart failed:", error);
-      toast.error(error.response?.data?.msg || "Error adding to cart.");
-    } finally {
-      setActionLoading(false); // end
     }
   };
 
@@ -186,7 +180,7 @@ export const CartProvider = ({ children }) => {
     if (!token) return (window.location.href = "/login");
     try {
       const res = await axios.post(
-        "http://localhost:7000/api/v1/add",
+        `${VITE_API_BASE_URL}/add`,
         { productId, quantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -196,7 +190,25 @@ export const CartProvider = ({ children }) => {
       toast.success("Added to cart!");
       return res.data;
     } catch (error) {
-      console.error("Add to cart failed:", error);
+      logError("Add to cart failed", error);
+      toast.error(error.response?.data?.msg || "Error adding to cart.");
+    }
+  };
+
+  const addToCart2 = async (productId, quantity) => {
+    if (!token) return (window.location.href = "/login");
+    try {
+      const res = await axios.post(
+        `${VITE_API_BASE_URL}/add-to-cart`,
+        { productId, quantity },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      await getUserCart();
+      await getMyWishlist();
+      toast.success("Added to cart!");
+      return res.data;
+    } catch (error) {
+      logError("Add to cart failed:", error);
       toast.error(error.response?.data?.msg || "Error adding to cart.");
     }
   };
@@ -205,7 +217,7 @@ export const CartProvider = ({ children }) => {
     if (!token) return (window.location.href = "/login");
     try {
       const res = await axios.delete(
-        `http://localhost:7000/api/v1/remove/${cartItemId}`,
+        `${VITE_API_BASE_URL}/remove/${cartItemId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       await getUserCart();
@@ -214,7 +226,7 @@ export const CartProvider = ({ children }) => {
         toast.info("Product removed from cart.");
       }
     } catch (error) {
-      console.error("Delete cart item failed:", error);
+      logError("Delete cart item failed:", error);
       toast.error("Failed to remove product.");
     }
   };
@@ -222,14 +234,14 @@ export const CartProvider = ({ children }) => {
   const clearCart = async () => {
     if (!token) return (window.location.href = "/login");
     try {
-      await axios.delete("http://localhost:7000/api/v1/clear", {
+      await axios.delete(`${VITE_API_BASE_URL}/clear`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCart([]);
       setCartTotal(0);
       toast.info("Cart cleared.");
     } catch (err) {
-      console.error("Clear cart failed:", err);
+      logError("Clear cart failed:", err);
       toast.error("Failed to clear cart.");
     }
   };
@@ -239,22 +251,22 @@ export const CartProvider = ({ children }) => {
     if (newQuantity < 1) return toast.warning("Quantity must be at least 1.");
     try {
       const res = await axios.patch(
-        `http://localhost:7000/api/v1/update/${cartItemId}`,
+        `${VITE_API_BASE_URL}/update/${cartItemId}`,
         { quantity: newQuantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setCart(res.data);
     } catch (error) {
-      console.error("Failed to update cart item quantity:", error);
+      logError("Failed to update cart item quantity:", error);
       toast.error(error.response?.data?.msg || "Error updating cart.");
     }
   };
 
-  // ---------------- MODAL ---------------- //
+  // ------------------- MODAL ------------------- //
   const openCartModal = () => setOpenModal(true);
   const closeCartModal = () => setOpenModal(false);
 
-  // ---------------- CONTEXT VALUES ---------------- //
+  // ------------------- CONTEXT VALUES ------------------- //
   const values = {
     user,
     setUser,
@@ -268,6 +280,7 @@ export const CartProvider = ({ children }) => {
     clearWishlist,
     loadingWishlist,
     cartData,
+    setCart,
     updateCartItemQuantity,
     getUserCart,
     addToCart,
@@ -279,7 +292,6 @@ export const CartProvider = ({ children }) => {
     openModal,
     openCartModal,
     closeCartModal,
-    actionLoading, // added to context
   };
 
   return <CartContext.Provider value={values}>{children}</CartContext.Provider>;

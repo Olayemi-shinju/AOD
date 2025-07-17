@@ -1,0 +1,33 @@
+.product-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.product-card .icon-wrapper {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transform: translateX(150%);
+  opacity: 0;
+  transition: all 0.4s ease-in-out;
+}
+
+.product-card:hover .icon-wrapper {
+  transform: translateX(0%);
+  opacity: 1;
+}
+
+.product-card .icon-wrapper div {
+  background: white;
+  height: 40px;
+  width: 40px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}

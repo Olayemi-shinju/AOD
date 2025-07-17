@@ -1,16 +1,37 @@
-import React, { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { MdOutlineClose } from "react-icons/md";
 import { Link } from "react-router-dom";
 import './modal.css'
 import '../Navigations/SecondNav.css'
 import logo from '../assets/Logo.png'
+import axios from "axios";
 
 const Modal = ({ open, handleClose }) => {
     const modalRef = useRef(null);
-  
+
     const [opens, setOpen] = useState(true)
-        
+    const [categories, setCategories] = useState([])
+    const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+
+    useEffect(() => {
+        const fetchCategory = async () => {
+            try {
+                const resp = await axios.get(`${VITE_API_BASE_URL}/get-category`);
+                if (resp.data.success) {
+                    setCategories(resp.data.data);
+                } else {
+                    setCategories([]);
+                }
+            } catch (error) {
+                console.log(error);
+                setCategories([]);
+            }
+        };
+
+        fetchCategory();
+    }, []);
 
     const handleOpen = () => {
         setOpen(prev => !prev)
@@ -28,9 +49,9 @@ const Modal = ({ open, handleClose }) => {
         <>
             {open && (
                 <div
-                className={`fixed inset-0 bg-black/40 cursor-crosshair z-40 transition-opacity duration-300 ${open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
-                onClick={handleClose}
-              />
+                    className={`fixed inset-0 bg-black/40 cursor-crosshair z-40 transition-opacity duration-300 ${open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+                    onClick={handleClose}
+                />
             )}
             <div
                 ref={modalRef}
@@ -39,14 +60,14 @@ const Modal = ({ open, handleClose }) => {
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex items-center justify-between w-[100%] px-2 pt-4">
-                     <div className=' lg:flex xl:flex'>
-                                <img src={logo} alt="" className="w-[80px]"/>
-                            </div>
+                    <div className=' lg:flex xl:flex'>
+                        <img src={logo} alt="" className="w-[80px]" />
+                    </div>
                     <div
                         className="bg-gray-200 cursor-pointer  w-[30px] h-[30px] flex items-center justify-center font-bold text-lg"
                         onClick={handleClose}
                     >
-                        <MdOutlineClose className="rotate"/>
+                        <MdOutlineClose className="rotate" />
                     </div>
                 </div>
                 <div className='px-7 py-4 w-[full] bg-blue-600 catHover cursor-pointer mt-8' onClick={handleOpen}>
@@ -58,47 +79,18 @@ const Modal = ({ open, handleClose }) => {
                         <IoIosArrowDown className='text-white font-bold text-sm' />
                     </div>
                 </div>
-                <div className={`${opens ? 'hidden' : 'block'} bg-white scroll-smooth px-7 py-4 w-[260px] overflow-y-auto max-h-[300px] no-scrollbar`}>
-                    <div>
-                        <p className='text-gray-600  text-md text cursor-pointer'>Solar Panels</p>
-                        <hr className='w-[full] border-[0.15px] border-gray-100 my-3' />
-                    </div>
-                    <div>
-                        <p className='text-gray-600  text-md text cursor-pointer'>Inverters</p>
-                        <hr className='w-[full] border-[0.15px] border-gray-100 my-3' />
-                    </div>
-                    <div>
-                        <p className='text-gray-600  text-md text cursor-pointer'>Home Appliances</p>
-                        <hr className='w-[full] border-[0.15px] border-gray-100 my-3' />
-                    </div>
-                    <div>
-                        <p className='text-gray-600  text-md text cursor-pointer'>Solar CCTV Cameras</p>
-                        <hr className='w-[full] border-[0.15px] border-gray-100 my-3' />
-                    </div>
-                    <div>
-                        <p className='text-gray-600  text-md text cursor-pointer'>Batteries</p>
-                        <hr className='w-[full] border-[0.15px] border-gray-100 my-3' />
-                    </div>
-                    <div>
-                        <p className='text-gray-600  text-md text cursor-pointer'>Solar Lighting</p>
-                        <hr className='w-[full] border-[0.15px] border-gray-100 my-3' />
-                    </div>
-                    <div>
-                        <p className='text-gray-600  text-md text cursor-pointer'>Solar Home Systems</p>
-                        <hr className='w-[full] border-[0.15px] border-gray-100 my-3' />
-                    </div>
-                    <div>
-                        <p className='text-gray-600  text-md text cursor-pointer'>Charge Controller</p>
-                        <hr className='w-[full] border-[0.15px] border-gray-100 my-3' />
-                    </div>
-                    <div>
-                        <p className='text-gray-600  text-md text cursor-pointer'>Power Stations</p>
-                        <hr className='w-[full] border-[0.15px] border-gray-100 my-3' />
-                    </div>
-                    <div>
-                        <p className='text-gray-600  text-md text cursor-pointer'>Solar Generators</p>
-                        <hr className='w-[full] border-[0.15px] border-gray-100 my-3' />
-                    </div>
+                <div className={`${opens ? 'hidden' : 'bg-white px-7 py-4 w-[260px] absolute z-10'}`}>
+                    {
+                        categories?.map((e) => (
+                            <Link to={`/shop/${e.slug}`} onClick={handleClose}>
+                                <div>
+                                    <p className='text-gray-600 font-semibold text-md text cursor-pointer'>{e.name}</p>
+                                    <hr className='w-[full] border-[0.15px] border-gray-100 my-3' />
+                                </div>
+                            </Link>
+                        ))
+                    }
+
 
                 </div>
 
@@ -116,7 +108,10 @@ const Modal = ({ open, handleClose }) => {
                             <Link to='/about'><li className='text-sm texts' onClick={handleClose}>About Us</li></Link>
                             <hr className='w-[full] border-[0.1px] border-gray-100 my-3' />
                         </div>
-                       
+                        <div className='flex flex-col gap-4'>
+                            <Link to='/project'><li className='text-sm texts' onClick={handleClose}>Our Project</li></Link>
+                            <hr className='w-[full] border-[0.1px] border-gray-100 my-3' />
+                        </div>
                     </ul>
                 </div>
 
@@ -130,6 +125,9 @@ const Modal = ({ open, handleClose }) => {
 };
 
 export default Modal;
+
+
+
 
 
 

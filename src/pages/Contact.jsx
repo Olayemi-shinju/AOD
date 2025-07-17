@@ -13,6 +13,8 @@ import { toast } from 'react-toastify'
 import axios from 'axios'
 
 const Contact = () => {
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
     const { data } = useContext(CartContext)
     const [loader, setLoader] = useState(false)
     const [formData, setFormData] = useState({
@@ -48,7 +50,7 @@ const Contact = () => {
     e.preventDefault()
     setLoader(true)
     try {
-        const resp = await axios.post('http://localhost:7000/api/v1/send', formData, {
+        const resp = await axios.post(`${VITE_API_BASE_URL}/send`, formData, {
             headers: { Authorization: `Bearer ${token}` }
         })
         if (resp.data.success === true) {

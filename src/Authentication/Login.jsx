@@ -8,7 +8,7 @@ import axios from 'axios';
 import { CartContext } from '../Contexts/Context';
 
 export default function LoginPage() {
-  const { setData, setUser } = useContext(CartContext)
+  const { setData, setUser, getUserCart } = useContext(CartContext)
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('')
   const [loader, setLoader] = useState(false)
@@ -16,6 +16,9 @@ export default function LoginPage() {
     password: '',
     email: '',
   })
+
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
   const navigate = useNavigate()
   const handleChange = (e) => {
@@ -34,20 +37,25 @@ export default function LoginPage() {
         return;
       }
 
-      const resp = await axios.post('http://localhost:7000/api/v1/login', formData);
+      const resp = await axios.post(`${VITE_API_BASE_URL}/login`, formData);
       if (resp.data.success === true) {
         toast.success(resp.data.msg);
         setData(resp.data.user)
+        await getUserCart()
         setUser(resp.data.user)
+        
         const oneWeekMs = 7 * 24 * 60 * 60 * 1000; // 1 week in milliseconds
-
+        
         const dataToStore = {
           value: resp.data.user,
           expiry: new Date().getTime() + oneWeekMs,
         };
-
+        
         localStorage.setItem('user', JSON.stringify(dataToStore)); // STRINGIFY ONCE!
         setLoader(false);
+        if (window.syncLocalUser) {
+          window.syncLocalUser();
+        }
         navigate('/');
       } else {
         toast.error(resp.msg);

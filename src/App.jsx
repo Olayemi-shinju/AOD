@@ -25,9 +25,10 @@ import 'leaflet/dist/leaflet.css'; // ✅ Required Leaflet CSS
 import { MobileNav } from './Navigations/MobileNav.jsx'
 import CheckoutPage from './pages/Checkout.jsx';
 import WishlistPage from './pages/Wishlist.jsx';
+import Project from './pages/Project.jsx';
 
 function App() {
-  
+
   return (
     <CartProvider>
       <BrowserRouter>
@@ -53,6 +54,7 @@ function App() {
               <Route path="/categories" element={<Categories />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/project" element={<Project />} />
               <Route path="/wish" element={<WishlistPage />} />
               <Route path="/detail/:slug" element={<ProductPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
@@ -62,8 +64,9 @@ function App() {
 
           {/* Footer */}
           <Footer />
-          <MobileNav/>
+          <MobileNav />
           {/* Toast Notifications */}
+
           <ToastContainer
             position="top-right"
             autoClose={3000}
@@ -74,7 +77,10 @@ function App() {
             pauseOnFocusLoss
             draggable
             pauseOnHover
-            theme="light"
+            theme="light" // or "dark" if you want dark mode
+            toastClassName="!bg-white !text-black !rounded-xl !shadow-lg !border border-gray-200"
+            bodyClassName="text-sm font-medium"
+            progressClassName="bg-blue-500"
           />
         </div>
       </BrowserRouter>

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { FiX } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { MdOutlineClose } from "react-icons/md";
@@ -10,7 +10,19 @@ const ShoppingCartDrawer = () => {
   const cart = cartData?.detailedItems || [];
   const subtotal = cartData?.subtotal || 0;
 
-  console.log
+  const [loadingId, setLoadingId] = useState(null); // Track loading item
+
+  const handleRemove = async (itemId) => {
+    if (loadingId) return; // prevent double clicks
+    setLoadingId(itemId);
+    try {
+      await removeFromCart(itemId);
+    } catch (err) {
+      console.error("Error removing item from cart", err);
+    } finally {
+      setLoadingId(null);
+    }
+  };
 
   return (
     <div className="fixed right-0 w-[70%] top-0 h-full xl:w-[320px] bg-white shadow-lg z flex flex-col">
@@ -45,11 +57,38 @@ const ShoppingCartDrawer = () => {
                       ₦{item.product.price.toLocaleString()} × {item.quantity}
                     </p>
                   </div>
+
                   <button
-                    className="text-sm cursor-pointer"
-                    onClick={() => removeFromCart(item._id)}
+                    className={`text-sm cursor-pointer p-1 rounded-full hover:bg-gray-100 transition ${
+                      loadingId === item._id ? "pointer-events-none" : ""
+                    }`}
+                    onClick={() => handleRemove(item._id)}
+                    disabled={loadingId === item._id}
                   >
-                    <MdOutlineClose />
+                    {loadingId === item._id ? (
+                      <svg
+                        className="animate-spin h-5 w-5 text-gray-600"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8H4z"
+                        />
+                      </svg>
+                    ) : (
+                      <MdOutlineClose />
+                    )}
                   </button>
                 </div>
               </div>

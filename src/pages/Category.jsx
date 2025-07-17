@@ -5,11 +5,12 @@ import { Link } from 'react-router-dom';
 const Categories = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true); // 🔥 new loading state
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     const fetchCategory = async () => {
       try {
-        const resp = await axios.get("http://localhost:7000/api/v1/get-category");
+        const resp = await axios.get(`${VITE_API_BASE_URL}/get-category`);
         if (resp.data.success) {
           setCategories(resp.data.data);
         } else {

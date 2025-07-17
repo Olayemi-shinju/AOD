@@ -11,10 +11,13 @@ const ResetPasswordPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const { token } = useParams();
   const navigate = useNavigate();
 
-  const isDisabled = !newPassword || !confirmPassword;
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  const isDisabled = !newPassword || !confirmPassword || loading;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,8 +34,9 @@ const ResetPasswordPage = () => {
     }
 
     try {
+      setLoading(true);
       const resp = await axios.post(
-        `http://localhost:7000/api/v1/reset-password/${token}`,
+        `${VITE_API_BASE_URL}/reset-password/${token}`,
         { newPassword }
       );
 
@@ -43,7 +47,9 @@ const ResetPasswordPage = () => {
         toast.error(resp.data.msg);
       }
     } catch (err) {
-      toast.error(err?.response?.data?.msg);
+      toast.error(err?.response?.data?.msg || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -100,12 +106,36 @@ const ResetPasswordPage = () => {
           <button
             type="submit"
             disabled={isDisabled}
-            className={`w-full py-3 rounded-lg font-semibold transition ${isDisabled
+            className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold transition ${
+              isDisabled
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-gray-900 cursor-pointer"
-              }`}
+                : "bg-blue-600 text-white hover:bg-gray-900"
+            }`}
           >
-            Reset Password
+            {loading ? (
+              <svg
+                className="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                />
+              </svg>
+            ) : (
+              "Reset Password"
+            )}
           </button>
         </div>
 

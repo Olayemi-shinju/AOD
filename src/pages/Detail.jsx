@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { AiOutlineHome } from "react-icons/ai";
-import { FiMinus } from "react-icons/fi";
+import { FiMinus, FiShoppingCart } from "react-icons/fi";
 import { GoPlus } from "react-icons/go";
 import './detail.css';
 import paypalImg from '../assets/images/paypal.png';
@@ -8,6 +8,9 @@ import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { CartContext } from '../Contexts/Context';
+import { GrView } from 'react-icons/gr';
+import { BsHeart } from 'react-icons/bs';
+import { motion } from "framer-motion";
 
 function formatTimeAgo(date) {
   const now = new Date();
@@ -29,16 +32,20 @@ function formatTimeAgo(date) {
 }
 
 const Detail = () => {
-  const {addToWishlist, addToCart}= useContext(CartContext)
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  const { addToWishlist, addToCart } = useContext(CartContext)
   const { slug } = useParams();
   const [count, setCount] = useState(1);
-  const [product, setProduct] = useState({});
+  const [product, setProduct] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [reviewLoading, setReviewLoading] = useState(false);
   const [review, setReviews] = useState([]);
   const [related, setRelated] = useState([]);
+  const [addingToCart, setAddingToCart] = useState({});
+  const [addingToWishlist, setAddingToWishlist] = useState({});
   const get = JSON.parse(localStorage.getItem('user'));
   const token = get?.value?.token;
   const [formData, setFormData] = useState({
@@ -47,37 +54,73 @@ const Detail = () => {
     slug: slug
   });
 
+  // Full page loader component
+  const FullPageLoader = () => (
+    <div className="fixed inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center z-50">
+      <div className="flex justify-center items-center py-8">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+      <p className="text-gray-600">Loading product details...</p>
+    </div>
+  );
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
-  const increase = () => setCount(prev => prev < product.quantity ? prev + 1 : prev);
+
+  const increase = () => setCount(prev => product && prev < product.quantity ? prev + 1 : prev);
   const decrease = () => setCount(prev => prev > 1 ? prev - 1 : 1);
+
+  const handleAddToCart = async (productId, quantity) => {
+    try {
+      setAddingToCart(prev => ({ ...prev, [productId]: true }));
+      await addToCart(productId, quantity);
+    } finally {
+      setAddingToCart(prev => ({ ...prev, [productId]: false }));
+    }
+  };
+
+  const handleAddToWishlist = async (productId) => {
+    try {
+      setAddingToWishlist(prev => ({ ...prev, [productId]: true }));
+      await addToWishlist(productId);
+    } finally {
+      setAddingToWishlist(prev => ({ ...prev, [productId]: false }));
+    }
+  };
 
   useEffect(() => {
     const fetchSingleProduct = async () => {
       setLoading(true);
       try {
-        const resp = await axios.get(`http://localhost:7000/api/v1/get-single-product/${slug}`);
+        const resp = await axios.get(`${VITE_API_BASE_URL}/get-single-product/${slug}`);
         if (resp.data.success) {
           const prod = resp.data.data;
           setProduct(prod);
           setSelectedImageIndex(0);
 
-          const allResp = await axios.get('http://localhost:7000/api/v1/get-all-product');
+          const allResp = await axios.get(`${VITE_API_BASE_URL}/get-all-product`);
           if (allResp.data.success) {
+            const allProducts = allResp.data.data.data || allResp.data.data;
             setRelated(
-              allResp.data.data
-                .filter(p => p.category === prod.category && p.slug !== slug)
+              allProducts
+                .filter(p =>
+                  p.category &&
+                  prod.category &&
+                  p.category.name === prod.category.name &&
+                  p._id !== prod._id
+                )
                 .slice(0, 4)
             );
           }
         } else {
-          setProduct({});
+          setProduct(null);
         }
       } catch (err) {
         console.error(err);
-        setProduct({});
+        setProduct(null);
+        toast.error('Failed to load product');
       } finally {
         setLoading(false);
       }
@@ -88,7 +131,7 @@ const Detail = () => {
   useEffect(() => {
     const fetchReview = async () => {
       try {
-        const resp = await axios.get(`http://localhost:7000/api/v1/get-product-review/${slug}`);
+        const resp = await axios.get(`${VITE_API_BASE_URL}/get-product-review/${slug}`);
         if (resp.data.success) setReviews(resp.data.data);
         else setReviews([]);
       } catch (err) {
@@ -107,7 +150,7 @@ const Detail = () => {
         setReviewLoading(false);
         return;
       }
-      const resp = await axios.post('http://localhost:7000/api/v1/create-review', formData, {
+      const resp = await axios.post(`${VITE_API_BASE_URL}/create-review`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (resp.data.success) {
@@ -127,8 +170,12 @@ const Detail = () => {
     }
   };
 
-  const images = product.images || [];
+  const images = product?.images || [];
   const hasUserReviewed = review.some(r => r.user._id === get?.value?.user?._id);
+
+  if (loading || !product) {
+    return <FullPageLoader />;
+  }
 
   return (
     <div className='xl:px-10 p-2 xl:py-10'>
@@ -147,7 +194,7 @@ const Detail = () => {
       <div className='flex flex-col lg:flex-row gap-6 p-5 min-h-[900px]'>
         {/* Left Images */}
         <div className='lg:w-[70%] relative'>
-          <div className={`sticky top-0 flex gap-4 ${loading ? 'blur-sm pointer-events-none select-none opacity-70' : ''}`}>
+          <div className='sticky top-0 flex gap-4'>
             <div className='flex flex-col gap-2 w-[15%]'>
               {images.length > 0 ? images.map((img, i) => (
                 <img
@@ -173,14 +220,6 @@ const Detail = () => {
               )}
             </div>
           </div>
-          {loading && (
-            <div className='absolute inset-0 bg-white bg-opacity-60 flex justify-center items-center rounded-md z-10'>
-              <svg className="animate-spin h-10 w-10 text-blue-500" xmlns="http://www.w3.org/2000/svg">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
-              </svg>
-            </div>
-          )}
         </div>
 
         {/* Right Section */}
@@ -195,7 +234,9 @@ const Detail = () => {
               <p className='text-sm text-gray-700 leading-7'>{product.description}</p>
             </div>
             <div className='py-3'>
-              <p className='text-2xl font-semibold'>₦{parseInt(product.price).toLocaleString()}.00</p>
+              <p className='text-2xl font-semibold'>
+                ₦{product.price ? parseInt(product.price).toLocaleString() : '0'}.00
+              </p>
             </div>
             <div className='mt-2'>
               <div className='flex items-end gap-3'>
@@ -207,11 +248,33 @@ const Detail = () => {
                     <button className='btn p-2 rounded-full cursor-pointer' onClick={increase}><GoPlus /></button>
                   </div>
                 </div>
-                <button onClick={()=>addToWishlist(product._id)} className='border wish cursor-pointer border-gray-200 text-center w-full p-3'>Add to Wishlist</button>
+                <button 
+                  onClick={() => handleAddToWishlist(product._id)} 
+                  disabled={addingToWishlist[product._id]}
+                  className='border wish cursor-pointer border-gray-200 text-center w-full p-3 flex items-center justify-center gap-2'
+                >
+                  {addingToWishlist[product._id] ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
+                      Adding...
+                    </>
+                  ) : 'Add to Wishlist'}
+                </button>
               </div>
             </div>
             <div className='mt-4'>
-              <button onClick={()=>addToCart(product._id, count)} className='text-white wish cursor-pointer font-semibold bg-blue-500 w-full p-3'>Add to Cart</button>
+              <button 
+                onClick={() => handleAddToCart(product._id, count)} 
+                disabled={addingToCart[product._id]}
+                className='text-white wish cursor-pointer font-semibold bg-blue-500 w-full p-3 flex items-center justify-center gap-2'
+              >
+                {addingToCart[product._id] ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    Adding...
+                  </>
+                ) : 'Add to Cart'}
+              </button>
             </div>
             <hr className='my-5 border-[0.25px] border-gray-100 w-full' />
             <div className='mt-4'>
@@ -243,7 +306,7 @@ const Detail = () => {
                 return (
                   <div key={reviewItem._id} className="border border-gray-100 p-4 rounded-md bg-white shadow">
                     <div className="flex justify-between items-center mb-2">
-                      <h3 className="font-medium text-gray-800">{reviewItem.user.name}</h3>
+                      <h3 className="font-medium text-gray-800">{reviewItem.user?.name || 'User'}</h3>
                       <p className="text-xs text-gray-500">{timeAgo}</p>
                     </div>
                     <div className="flex items-center text-yellow-500 text-sm mb-1">
@@ -268,7 +331,7 @@ const Detail = () => {
                 <label htmlFor="rate" className='block mb-2 text-sm font-medium text-gray-700'>Your Rating (1 - 5)</label>
                 <select name='rating' id='rate' onChange={handleChange} value={formData.rating} className='w-full border border-gray-200 text-md text-gray-400 p-3 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500'>
                   <option value="">Rate 1 to 5</option>
-                  {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
+                  {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}</option>)}
                 </select>
 
                 <div className='w-full my-4'>
@@ -281,7 +344,7 @@ const Detail = () => {
                 <div className='mt-5'>
                   <button type="submit" disabled={reviewLoading} className={`flex items-center cursor-pointer justify-center gap-2 p-2.5 w-[170px] text-white font-medium rounded ${reviewLoading ? 'bg-gray-600 cursor-not-allowed' : 'bg-black hover:bg-gray-800'}`}>
                     {reviewLoading ? (
-                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/></svg>
+                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>
                     ) : 'Send Review'}
                   </button>
                 </div>
@@ -295,15 +358,81 @@ const Detail = () => {
       {related.length > 0 && (
         <div className="mt-10">
           <h2 className="text-2xl font-semibold mb-4">Related Products</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {related.map(rp => (
-              <Link key={rp._id} to={`/product/${rp.slug}`} className="bg-white p-3 border rounded-md hover:shadow">
-                <img src={rp.images?.[0]} alt={rp.name} className="w-full h-32 object-cover mb-2 rounded-sm" />
-                <p className="text-sm font-medium text-gray-800">{rp.name}</p>
-                <p className="text-gray-600">₦{parseInt(rp.price).toLocaleString()}</p>
-              </Link>
-            ))}
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.5 }}
+          >
+            <div className='grid py-10 lg:grid-cols-4 xl:grid-cols-4 md:grid-cols-2 2xl:grid-cols-4 grid-cols-1'>
+              {related.map((e, index) => (
+                <div key={index} className='p-4'>
+                  <div className='flex relative flex-col gap-4 cursor-pointer product-card'>
+                    {/* Icons */}
+                    <div
+                      onClick={() => handleAddToCart(e._id, 1)}
+                      className='absolute top-2 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon cursor-pointer'
+                      disabled={addingToCart[e._id]}
+                    >
+                      {addingToCart[e._id] ? (
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
+                      ) : (
+                        <FiShoppingCart />
+                      )}
+                    </div>
+
+                    <div
+                      onClick={() => handleAddToWishlist(e._id)}
+                      className='absolute top-20 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-2 cursor-pointer'
+                      disabled={addingToWishlist[e._id]}
+                    >
+                      {addingToWishlist[e._id] ? (
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
+                      ) : (
+                        <BsHeart />
+                      )}
+                    </div>
+
+                    {/* Image */}
+                    <Link to={`/detail/${e.slug}`}>
+                      <div className='w-full h-[250px] bg-gray-100 bg-opacity-50 flex justify-center items-center relative'>
+                        <img
+                          src={e.images?.[0]}
+                          alt={e.name}
+                          className={`w-full h-full object-cover`}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    </Link>
+
+                    {/* Info */}
+                    <div>
+                      <p className='text-xl'>{e.name}</p>
+                      <p className='text-sm text-gray-400 truncate' style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {e.description}
+                      </p>
+                      <p className='font-semibold'>₦{Number(e.price).toLocaleString()}</p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddToCart(e._id, 1)}
+                    disabled={addingToCart[e._id]}
+                    className="mt-2 w-full text-center lg:hidden bg-black text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-gray-800 transition flex items-center justify-center gap-2"
+                  >
+                    {addingToCart[e._id] ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Adding...
+                      </>
+                    ) : 'Add to Cart'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       )}
     </div>

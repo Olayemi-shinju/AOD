@@ -25,6 +25,8 @@ const RegisterPage = () => {
         const { name, value } = e.target
         setFormData(prev => ({ ...prev, [name]: value }))
     }
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
     const handleSubmit = async (e) => {
     e.preventDefault()
@@ -35,7 +37,7 @@ const RegisterPage = () => {
                 setError('Pls Fill All Fields')
                 return
             }
-            const resp = await axios.post('http://localhost:7000/api/v1/sign', formData)
+            const resp = await axios.post(`${VITE_API_BASE_URL}/sign`, formData)
             if (resp.data.success === true) {
                 toast.success(resp.data.data.msg)
                 setLoader(false)

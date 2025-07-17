@@ -12,14 +12,58 @@ import { GrView } from 'react-icons/gr';
 import { BsHeart } from 'react-icons/bs';
 import axios from 'axios';
 import { CartContext } from '../Contexts/Context';
+import ProductModal from '../modal/productModal';
 
 const Home = () => {
-  const { addToWishlist, addToCart } = useContext(CartContext)
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const { addToWishlist, addToCart, openModal } = useContext(CartContext)
   const [imageLoaded, setImageLoaded] = useState({});
   const [currentSlide, setCurrentSlide] = useState(0);
   const [products, setProducts] = useState([])
+  const [openProduct, setOpenProduct] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [addingToCart, setAddingToCart] = useState({});
+
+  useEffect(() => {
+    const fetchCategory = async () => {
+      try {
+        const resp = await axios.get(`${VITE_API_BASE_URL}/get-category`);
+        if (resp.data.success) {
+          setCategories(resp.data.data);
+        } else {
+          setCategories([]);
+        }
+      } catch (error) {
+        console.log(error);
+        setCategories([]);
+      }
+    };
+
+    fetchCategory();
+  }, []);
+
   const handleImageLoad = (id) => {
     setImageLoaded((prev) => ({ ...prev, [id]: true }));
+  };
+
+  const handleOpen = (product) => {
+    setSelectedProduct(product);
+    setOpenProduct(true);
+  };
+
+  const handleClose = () => {
+    setOpenProduct(false);
+    setSelectedProduct(null);
+  };
+
+  const handleAddToCart = async (productId, quantity) => {
+    try {
+      setAddingToCart(prev => ({ ...prev, [productId]: true }));
+      await addToCart(productId, quantity);
+    } finally {
+      setAddingToCart(prev => ({ ...prev, [productId]: false }));
+    }
   };
 
   const limit = 16
@@ -109,7 +153,7 @@ const Home = () => {
     const fetchProduct = async () => {
       try {
         const resp = await axios.get(
-          `http://localhost:7000/api/v1/get-all-product?limit=${limit}`
+          `${VITE_API_BASE_URL}/get-all-product?limit=${limit}`
         );
         if (resp.data.success) {
           setProducts(resp.data.data);
@@ -166,42 +210,24 @@ const Home = () => {
       {/* second section */}
       <section className="w-[91%] max-w-screen-xl mx-auto mt-10 px-4">
         {/* Icons Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4 justify-items-center">
-          <div className="bg-[#e5f2ff] flex justify-center items-center rounded-full h-32 w-32">
-            <img
-              src="https://www.ecofluxng.com/assets/solar-panel-GPuY3f3R.png"
-              className="w-20 hover transition rounded-2xl"
-              alt="Solar Panel"
-            />
-          </div>
-          <div className="bg-[#e5f2ff] flex justify-center items-center rounded-full h-32 w-32">
-            <img
-              src="https://www.ecofluxng.com/assets/inverter-BTBEUzZF.png"
-              className="w-20 hover"
-              alt="Inverter"
-            />
-          </div>
-          <div className="bg-[#e5f2ff] flex justify-center items-center rounded-full h-32 w-32">
-            <img
-              src="https://www.ecofluxng.com/assets/battery-D53YAMSd.png"
-              className="w-20 hover"
-              alt="Battery"
-            />
-          </div>
-          <div className="bg-[#e5f2ff] flex justify-center items-center rounded-full h-32 w-32">
-            <img
-              src="https://www.ecofluxng.com/assets/charge-VHi5Fj5i.png"
-              className="w-25 hover"
-              alt="Charge Controller"
-            />
-          </div>
-          <div className="bg-[#e5f2ff] flex justify-center items-center rounded-full h-32 w-32 md:flex">
-            <img
-              src="https://www.ecofluxng.com/assets/ecoflux-house-GU4vyDCf.png"
-              className="w-24 hover"
-              alt="Ecoflux House"
-            />
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 justify-items-center px-4">
+          {categories?.slice(0, 5).map((e) => (
+            <div
+              key={e.slug}
+              className="flex flex-col items-center gap-2 text-center w-full max-w-[120px] sm:max-w-[140px] md:max-w-[160px]"
+            >
+              <Link to={`/shop/${e.slug}`}>
+                <div className="bg-[#e5f2ff] flex justify-center items-center rounded-full w-[100px] h-[100px] sm:w-[100px] sm:h-[100px] md:w-[120px] md:h-[120px]">
+                  <img
+                    src={e.image}
+                    className="transition hover:scale-105 rounded-full object-cover w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] md:w-[100px] md:h-[100px]"
+                    alt={e.name}
+                  />
+                </div>
+              </Link>
+              <p className="text-xs sm:text-sm text-gray-600 truncate">{e.name}</p>
+            </div>
+          ))}
         </div>
 
         {/* Features Row */}
@@ -254,13 +280,18 @@ const Home = () => {
               <div key={index} className='p-4 border border-gray-100 rounded-lg'>
                 <div className='flex relative flex-col gap-4 cursor-pointer product-card'>
                   <div
-                    onClick={() => addToCart(e._id, 1)}
+                    onClick={() => handleAddToCart(e._id, 1)}
                     className='absolute top-2 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon cursor-pointer'
+                    disabled={addingToCart[e._id]}
                   >
-                    <FiShoppingCart />
+                    {addingToCart[e._id] ? (
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
+                    ) : (
+                      <FiShoppingCart />
+                    )}
                   </div>
 
-                  <div className='absolute top-12 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-1'>
+                  <div onClick={() => handleOpen(e)} className='absolute top-12 right-2 z-10 bg-white p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-1'>
                     <GrView />
                   </div>
                   <div onClick={() => addToWishlist(e._id)} className='absolute top-20 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-2'>
@@ -339,13 +370,18 @@ const Home = () => {
               <div key={index} className='p-4 border border-gray-100 rounded-lg'>
                 <div className='flex relative flex-col gap-4 cursor-pointer product-card'>
                   <div
-                    onClick={() => addToCart(e._id, 1)}
+                    onClick={() => handleAddToCart(e._id, 1)}
                     className='absolute top-2 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon cursor-pointer'
+                    disabled={addingToCart[e._id]}
                   >
-                    <FiShoppingCart />
+                    {addingToCart[e._id] ? (
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
+                    ) : (
+                      <FiShoppingCart />
+                    )}
                   </div>
 
-                  <div className='absolute top-12 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-1'>
+                  <div onClick={() => handleOpen(e)} className='absolute top-12 right-2 z-10 bg-white p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-1'>
                     <GrView />
                   </div>
                   <div onClick={() => addToWishlist(e._id)} className='absolute top-20 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-2'>
@@ -379,6 +415,10 @@ const Home = () => {
             ))}
           </div>
         </motion.div>
+      )}
+      {/* Product Modal */}
+      {openProduct && selectedProduct && (
+        <ProductModal product={selectedProduct} handleClose={handleClose} />
       )}
     </>
   );

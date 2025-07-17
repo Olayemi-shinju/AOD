@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CartContext } from '../Contexts/Context';
 import {
@@ -49,11 +49,6 @@ const Cart = () => {
     setClearing(false);
   };
 
-  const handleAddToWishlist = async (productId) => {
-    // Replace this with real wishlist logic or context/API
-    console.log(`Added to wishlist: ${productId}`);
-  };
-
   const total = detailedItems.reduce((sum, item) => {
     const price =
       item.product?.discountPrice && item.product.discountPrice > 0
@@ -72,16 +67,16 @@ const Cart = () => {
   }
 
   return (
-    <div className="lg:px-20 px-6 py-10 overflow-x-hidden">
+    <div className="lg:px-20 px-4 py-10 overflow-x-hidden">
       <div className="mb-8">
-        <h1 className="text-4xl font-semibold">Shopping Cart</h1>
-        <div className="text-sm text-gray-400 mt-2 flex gap-2">
+        <h1 className="text-3xl sm:text-4xl font-semibold">Shopping Cart</h1>
+        <div className="text-sm text-gray-400 mt-2 flex gap-2 flex-wrap">
           <Link to="/">Home</Link>
           <li className="list-disc">Shopping Cart</li>
         </div>
       </div>
 
-      {cartData?.detailedItems?.length === 0 ? (
+      {detailedItems.length === 0 ? (
         <div className="text-center py-20 text-gray-500 text-lg">
           🛒 Your cart is currently empty.
           <div>
@@ -105,42 +100,45 @@ const Cart = () => {
                   key={item._id}
                   className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white shadow rounded-lg p-4"
                 >
-                  {/* Product Info */}
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full sm:w-auto">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full">
                     <img
                       src={item.product.image}
                       alt={item.product.name}
                       className="w-24 h-24 object-contain rounded-md"
                     />
-                    <div>
+                    <div className="flex-1">
                       <h2 className="text-lg font-semibold">{item.product.name}</h2>
-                      <p className="text-gray-500">₦{price.toLocaleString()}</p>
+                      <p className="text-gray-500 text-sm sm:text-base">₦{price.toLocaleString()}</p>
 
-                      <div className="flex justify-between items-center gap-2 mt-2">
-                        <button
-                          onClick={() => handleDecrease(item._id, item.quantity)}
-                          disabled={item.quantity === 1 || updatingId === item._id}
-                          className={`w-8 h-8 flex items-center cursor-pointer justify-center rounded-full border text-lg ${
-                            item.quantity === 1 || updatingId === item._id
-                              ? 'text-gray-300 border-gray-300 cursor-not-allowed'
-                              : 'text-black border-gray-400 hover:bg-gray-200'
-                          }`}
-                        >
-                          <FaMinus className='cursor-pointer'/>
-                        </button>
-                        <span className="w-6 text-center">{item.quantity}</span>
-                        <button
-                          onClick={() => handleIncrease(item._id, item.quantity)}
-                          disabled={updatingId === item._id}
-                          className="w-8 h-8 flex items-center cursor-pointer justify-center rounded-full border border-gray-400 text-black hover:bg-gray-200"
-                        >
-                          <FaPlus className='cursor-pointer'/>
-                        </button>
+                      <div className="flex flex-wrap items-center gap-2 mt-2 text-sm">
+                        {/* Quantity Controls */}
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleDecrease(item._id, item.quantity)}
+                            disabled={item.quantity === 1 || updatingId === item._id}
+                            className={`w-8 cursor-pointer h-8 flex items-center justify-center rounded-full border text-lg ${
+                              item.quantity === 1 || updatingId === item._id
+                                ? 'text-gray-300 border-gray-300 cursor-not-allowed'
+                                : 'text-black border-gray-400 hover:bg-gray-200'
+                            }`}
+                          >
+                            <FaMinus />
+                          </button>
+                          <span className="w-6 text-center">{item.quantity}</span>
+                          <button
+                            onClick={() => handleIncrease(item._id, item.quantity)}
+                            disabled={updatingId === item._id}
+                            className="w-8 cursor-pointer h-8 flex items-center justify-center rounded-full border border-gray-400 text-black hover:bg-gray-200"
+                          >
+                            <FaPlus />
+                          </button>
+                        </div>
 
+                        {/* Remove Button */}
                         <button
                           onClick={() => handleRemove(item._id)}
                           disabled={updatingId === item._id}
-                          className="ml-2 text-red-500 cursor-pointer hover:underline text-sm"
+                          className="ml-1 cursor-pointer text-red-500 hover:underline"
                         >
                           {updatingId === item._id ? (
                             <FaSpinner className="animate-spin w-4 h-4" />
@@ -151,9 +149,10 @@ const Cart = () => {
                           )}
                         </button>
 
+                        {/* Wishlist Button */}
                         <button
                           onClick={() => addToWishlist2(item.product._id)}
-                          className="ml-2 text-blue-500 cursor-pointer hover:underline text-sm"
+                          className="text-blue-500 cursor-pointer hover:underline ml-1"
                         >
                           💖 Wishlist
                         </button>
@@ -170,19 +169,19 @@ const Cart = () => {
             })}
           </div>
 
-          {/* Checkout Summary */}
+          {/* Order Summary */}
           <div className="w-full lg:w-1/3 bg-white shadow rounded-lg p-6 h-fit lg:sticky lg:top-24">
             <h2 className="text-2xl font-semibold mb-6">Order Summary</h2>
 
             <div className="flex justify-between text-lg font-semibold mb-4">
               <span>Subtotal</span>
-              <span className="font-semibold">₦{total.toLocaleString()}</span>
+              <span>₦{total.toLocaleString()}</span>
             </div>
 
             <Link to="/checkout">
               <button
                 disabled={detailedItems.length === 0}
-                className="w-full cursor-pointer bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Proceed to Checkout
               </button>
@@ -191,7 +190,7 @@ const Cart = () => {
             <button
               onClick={handleClearCart}
               disabled={clearing || detailedItems.length === 0}
-              className="mt-4 w-full text-red-500 border cursor-pointer border-red-500 py-2 rounded-lg hover:bg-red-50 transition disabled:opacity-50"
+              className="mt-4 w-full cursor-pointer text-red-500 border border-red-500 py-2 rounded-lg hover:bg-red-50 transition disabled:opacity-50"
             >
               {clearing ? (
                 <span className="flex items-center justify-center gap-2">

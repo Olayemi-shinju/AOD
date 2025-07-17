@@ -47,6 +47,7 @@ const ScrollNav = () => {
                                 <Link to='/'><li className='text-md texts'>Home</li></Link>
                                 <Link to='/categories'><li className='text-md texts'>Shop</li></Link>
                                 <Link to='/about'><li className='text-md texts'>About Us</li></Link>
+                                <Link to='/project'><li className='text-md texts'>Our Project</li></Link>
                                 <Link to='/contact'><li className='text-md texts'>Contact</li></Link>
                             </ul>
                         </div>
@@ -68,10 +69,15 @@ const ScrollNav = () => {
 
                         {/* Cart icon (unchanged) */}
                         <div className='flex items-start relative'>
-                    
-                                <div className='absolute -top-2 -right-2 bg-black text-white text-xs w-5 h-5 flex items-center justify-center rounded-full'>
-                                    {cartData.totalItems}
-                                </div>
+
+                            {
+                                cartData?.totalItems > 0 && (
+
+                                    <div className='absolute -top-2 -right-2 bg-black text-white text-xs w-5 h-5 flex items-center justify-center rounded-full'>
+                                        {cartData?.totalItems}
+                                    </div>
+                                )
+                            }
                             <FiShoppingCart className='text-2xl cursor-pointer logo' onClick={openCartModal} />
                         </div>
 

@@ -69,41 +69,43 @@ export const MobileNav = () => {
     };
 
     return (
-        <div className="xl:hidden md:hidden sm:hidden z-10 lg:hidden bottom-0 fixed flex justify-between items-center w-full bg-white shadow px-5 py-4">
-            <Link to='/categories'>
-                <div className="flex flex-col cursor-pointer group items-center justify-center">
-                    <MdOutlineStorefront className="text-4xl font-light text-gray-600" />
-                    <li className="list-none text-gray-500 font-semibold text-sm">Store</li>
-                </div>
-            </Link>
-
-            <div onClick={handleOpen1} className="flex flex-col cursor-pointer group items-center justify-center">
-                <IoSearchOutline className="text-4xl font-light text-gray-600" />
-                <li className="list-none text-gray-500 font-semibold text-sm">Search</li>
-            </div>
-
-            <div onClick={handleWishlistClick} className="relative flex flex-col cursor-pointer group items-center justify-center">
-                <BsHeart className="text-3xl font-light text-gray-600" />
-                {wishlist?.length > 0 && (
-                    <div className="absolute -top-1 -right-1 bg-black text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
-                        {wishlist.length}
+        <div>
+            <div className="xl:hidden md:hidden sm:hidden z-10 lg:hidden bottom-0 fixed flex justify-between items-center w-full bg-white shadow px-5 py-4">
+                <Link to='/categories'>
+                    <div className="flex flex-col cursor-pointer group items-center justify-center">
+                        <MdOutlineStorefront className="text-4xl font-light text-gray-600" />
+                        <li className="list-none text-gray-500 font-semibold text-sm">Store</li>
                     </div>
-                )}
-                <li className="list-none text-gray-500 font-semibold text-sm">Wishlist</li>
-            </div>
+                </Link>
 
-            <Link to={localUser ? '/profile' : '/login'}>
-                <div className="flex flex-col cursor-pointer group items-center justify-center">
-                    <IoPersonOutline className="text-3xl font-light text-gray-600" />
-                    <li className="list-none text-gray-500 font-semibold text-sm">Profile</li>
+                <div onClick={handleOpen1} className="flex flex-col cursor-pointer group items-center justify-center">
+                    <IoSearchOutline className="text-4xl font-light text-gray-600" />
+                    <li className="list-none text-gray-500 font-semibold text-sm">Search</li>
                 </div>
-            </Link>
 
-            <div onClick={handleOpen} className="flex flex-col cursor-pointer group items-center justify-center">
-                <IoReorderThreeOutline className="text-3xl font-light text-gray-600" />
-                <li className="list-none text-gray-500 font-semibold text-sm">Menu</li>
+                <div onClick={handleWishlistClick} className="relative flex flex-col cursor-pointer group items-center justify-center">
+                    <BsHeart className="text-3xl font-light text-gray-600" />
+                    {wishlist?.length > 0 && (
+                        <div className="absolute -top-1 -right-1 bg-black text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
+                            {wishlist.length}
+                        </div>
+                    )}
+                    <li className="list-none text-gray-500 font-semibold text-sm">Wishlist</li>
+                </div>
+
+                <Link to={localUser ? '/profile' : '/login'}>
+                    <div className="flex flex-col cursor-pointer group items-center justify-center">
+                        <IoPersonOutline className="text-3xl font-light text-gray-600" />
+                        <li className="list-none text-gray-500 font-semibold text-sm">Profile</li>
+                    </div>
+                </Link>
+
+                <div onClick={handleOpen} className="flex flex-col cursor-pointer group items-center justify-center">
+                    <IoReorderThreeOutline className="text-3xl font-light text-gray-600" />
+                    <li className="list-none text-gray-500 font-semibold text-sm">Menu</li>
+                </div>
+
             </div>
-
             {open && <Modal open={open} handleClose={handleClose} />}
 
             {search && (

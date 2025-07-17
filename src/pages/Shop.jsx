@@ -7,16 +7,21 @@ import { BsHeart } from 'react-icons/bs';
 import { motion } from "framer-motion";
 import axios from 'axios';
 import { CartContext } from '../Contexts/Context';
+import ProductModal from '../modal/productModal';
 
 const Shop = () => {
-  const { addToWishlist, addToCart } = useContext(CartContext)
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  const { addToWishlist, addToCart } = useContext(CartContext);
   const [sortType, setSortType] = useState('');
   const [imageLoaded, setImageLoaded] = useState({});
   const [product, setProduct] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);              // current page
-  const [totalPages, setTotalPages] = useState(1); // total pages from backend
-  const limit = 20; // items per page, you can change this
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [openProduct, setOpenProduct] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const limit = 20;
 
   const { id } = useParams();
 
@@ -24,16 +29,22 @@ const Shop = () => {
     setImageLoaded((prev) => ({ ...prev, [productId]: true }));
   };
 
+  const handleOpen = () => setOpenProduct(true);
+  const handleClose = () => {
+    setOpenProduct(false);
+    setSelectedProduct(null);
+  };
+
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
       try {
         const resp = await axios.get(
-          `http://localhost:7000/api/v1/get-category-product/${id}?page=${page}&limit=${limit}`
+          `${VITE_API_BASE_URL}/get-category-product/${id}?page=${page}&limit=${limit}`
         );
         if (resp.data.success) {
           setProduct(resp.data.data);
-          setTotalPages(resp.data.pagination.pages); // update total pages from backend response
+          setTotalPages(resp.data.pagination.pages);
         }
       } catch (error) {
         console.error(error);
@@ -51,10 +62,8 @@ const Shop = () => {
   const sortedProducts = [...product].sort((a, b) => {
     const getPriceValue = (val) =>
       typeof val === 'string' ? Number(val.replace(/,/g, '')) : Number(val) || 0;
-
     const priceA = getPriceValue(a.price);
     const priceB = getPriceValue(b.price);
-
     if (sortType === 'low-high') return priceA - priceB;
     if (sortType === 'high-low') return priceB - priceA;
     if (sortType === 'a-z') return a.name.localeCompare(b.name);
@@ -62,7 +71,6 @@ const Shop = () => {
     return 0;
   });
 
-  // Pagination handlers
   const handlePrevPage = () => {
     if (page > 1) setPage(page - 1);
   };
@@ -74,16 +82,16 @@ const Shop = () => {
   return (
     <div className='lg:px-20 px-7 pt-18'>
       <div>
-        <h1 className='text-4xl font-semibold'>{product.map((e) => (<p>{e.category?.name}</p>))}</h1>
-        {
-          loading ? '' : (
-            <div className='text-sm text-gray-400 mt-2 flex gap-2'>
-              <Link to='/'>Home</Link>
-              <p>•</p>
-              <p className=''>{product.map((e) => (<p>{e.category?.name}</p>))}</p>
-            </div>
-          )
-        }
+        <h1 className='text-4xl font-semibold'>
+          {product.length > 0 && product[0].category?.name}
+        </h1>
+        {!loading && (
+          <div className='text-sm text-gray-400 mt-2 flex gap-2'>
+            <Link to='/'>Home</Link>
+            <p>•</p>
+            <p>{product.length > 0 && product[0].category?.name}</p>
+          </div>
+        )}
       </div>
 
       <div className='lg:flex md:flex md:justify-between lg:items-center p-2 py-16 lg:justify-end gap-6'>
@@ -103,6 +111,7 @@ const Shop = () => {
           type="button"
           className="flex mt-3 cursor-pointer w-full text-center justify-center items-center outline text bg-black p-3 text-white lg:w-[150px]"
         >
+          {/* Dummy filter button */}
           <span>
             <svg width="16" height="15" viewBox="0 0 16 15" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M14.9998 3.45001H10.7998" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -132,6 +141,7 @@ const Shop = () => {
               {sortedProducts.map((e, index) => (
                 <div key={index} className='p-4'>
                   <div className='flex relative flex-col gap-4 cursor-pointer product-card'>
+                    {/* Icons */}
                     <div
                       onClick={() => addToCart(e._id, 1)}
                       className='absolute top-2 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon cursor-pointer'
@@ -139,12 +149,24 @@ const Shop = () => {
                       <FiShoppingCart />
                     </div>
 
-                    <div className='absolute top-12 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-1'>
+                    <div
+                      onClick={() => {
+                        setSelectedProduct(e);
+                        handleOpen();
+                      }}
+                      className='absolute top-12 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-1 cursor-pointer'
+                    >
                       <GrView />
                     </div>
-                    <div onClick={() => addToWishlist(e._id)} className='absolute top-20 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-2'>
+
+                    <div
+                      onClick={() => addToWishlist(e._id)}
+                      className='absolute top-20 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-2 cursor-pointer'
+                    >
                       <BsHeart />
                     </div>
+
+                    {/* Image */}
                     <Link to={`/detail/${e.slug}`}>
                       <div className='w-full h-[250px] bg-gray-100 bg-opacity-50 flex justify-center items-center relative'>
                         {!imageLoaded[e.id] && (
@@ -164,18 +186,16 @@ const Shop = () => {
                       </div>
                     </Link>
 
+                    {/* Info */}
                     <div>
                       <p className='text-xl'>{e.name}</p>
-                      <p className='text-sm text-gray-400 truncate ...' style={{
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }}>
+                      <p className='text-sm text-gray-400 truncate' style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {e.description}
                       </p>
                       <p className='font-semibold'>₦{Number(e.price).toLocaleString()}</p>
                     </div>
                   </div>
+
                   <button
                     type="button"
                     className="mt-2 block w-full text-center lg:hidden bg-black text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-gray-800 transition"
@@ -187,12 +207,12 @@ const Shop = () => {
             </div>
           </motion.div>
 
-          {/* Pagination Controls */}
+          {/* Pagination */}
           <div className="flex justify-center gap-4 py-10">
             <button
               onClick={handlePrevPage}
               disabled={page === 1}
-              className={`px-4 py-2 rounded cursor-pointer bg-gray-300 hover:bg-gray-400 disabled:opacity-50`}
+              className="px-4 py-2 rounded cursor-pointer bg-gray-300 hover:bg-gray-400 disabled:opacity-50"
             >
               Prev
             </button>
@@ -202,11 +222,18 @@ const Shop = () => {
             <button
               onClick={handleNextPage}
               disabled={page === totalPages}
-              className={`px-4 py-2 rounded cursor-pointer bg-gray-300 hover:bg-gray-400 disabled:opacity-50`}
+              className="px-4 py-2 rounded cursor-pointer bg-gray-300 hover:bg-gray-400 disabled:opacity-50"
             >
               Next
             </button>
           </div>
+        </>
+      )}
+
+      {/* Modal */}
+      {openProduct && selectedProduct && (
+        <>
+          <ProductModal handleClose={handleClose} product={selectedProduct} />
         </>
       )}
     </div>

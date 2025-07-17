@@ -1,6 +1,5 @@
 import { useContext, useEffect } from "react";
 import { CartContext } from "../Contexts/Context";
-import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 
 export default function WishlistPage() {
@@ -16,110 +15,94 @@ export default function WishlistPage() {
   } = useContext(CartContext);
 
   useEffect(() => {
-    if (!user) return;
-    getMyWishlist();
+    if (user) getMyWishlist();
   }, [user, getMyWishlist]);
 
-  const handleRemove = async (id) => {
-    await removeFromWishlist(id);
-  };
+  const handleRemove = async (id) => await removeFromWishlist(id);
+  const handleClear = async () => await clearWishlist();
+  const handleAddToCart = async (productId) => await addToCart2(productId, 1);
 
-  const handleClear = async () => {
-    await clearWishlist();
-  };
-
-  const handleAddToCart = async (productId) => {
-    try {
-      await addToCart2(productId, 1);
-    } catch (error) {
-      toast.error("Failed to add to cart.");
-    }
-  };
+  const primaryBlue = "bg-[#1E3A8A]"; // Deep blue
+  const hoverBlue = "hover:bg-[#1E40AF]";
+  const lightBlueBg = "bg-[#F0F4FF]";
+  const grayText = "text-[#4B5563]";
 
   if (loadingWishlist) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-blue-50">
-        <svg
-          className="animate-spin h-12 w-12 text-blue-600"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          ></circle>
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 01-8 8h4l-3 3 3 3h-4z"
-          ></path>
-        </svg>
+      <div className="flex justify-center items-center min-h-screen bg-[#F8FAFC]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-[#1E3A8A]" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-blue-50 p-4 sm:p-6">
-      <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-md p-4 sm:p-6 overflow-x-auto">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-700 mb-2">
-          Wishlist
-        </h1>
-        <p className="text-gray-700 mb-6 text-md sm:text-lg whitespace-nowrap">
-          <Link to="/">Home</Link> &bull; Wishlist &bull;{" "}
-          {data?.name || "User"}
-        </p>
+    <div className="min-h-screen bg-[#F8FAFC] p-4 sm:p-6">
+      <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-6 sm:p-8">
+        <div className="mb-6">
+          <h1 className="text-3xl font-semibold text-gray-800 mb-1">My Wishlist</h1>
+          <p className={`${grayText} text-base`}>
+            <Link to="/" className="text-[#1E40AF] hover:underline">Home</Link> &nbsp;&bull;&nbsp; Wishlist &nbsp;&bull;&nbsp;{" "}
+            {data?.name || "User"}
+          </p>
+        </div>
 
         {wishlist.length === 0 ? (
-          <p className="text-gray-600 text-center py-8 text-lg">
-            Your wishlist is empty. Explore products and add your favorites!
-          </p>
+          <div className="text-center py-16">
+            <img
+              src="/empty-wishlist.svg"
+              alt="Empty wishlist"
+              className="w-40 mx-auto mb-6"
+            />
+            <p className={`${grayText} text-lg mb-4`}>
+              Your wishlist is empty. Browse and add your favorites.
+            </p>
+            <Link
+              to="/"
+              className={`inline-block ${primaryBlue} ${hoverBlue} text-white px-6 py-2 rounded-md transition`}
+            >
+              Explore Products
+            </Link>
+          </div>
         ) : (
           <>
             <div className="w-full overflow-x-auto">
-              <table className="min-w-[600px] w-full text-left border-t border-b border-blue-100">
-                <thead className="bg-blue-100 text-blue-800">
+              <table className="min-w-[640px] w-full text-left border-t border-b border-gray-200">
+                <thead className={`${lightBlueBg} text-gray-700 text-sm uppercase tracking-wide`}>
                   <tr>
-                    <th className="px-4 py-2">Product</th>
-                    <th className="px-4 py-2">Price</th>
-                    <th className="px-4 py-2">Action</th>
-                    <th className="px-4 py-2"></th>
+                    <th className="px-4 py-3">Product</th>
+                    <th className="px-4 py-3">Price</th>
+                    <th className="px-4 py-3">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="text-sm text-gray-800">
                   {wishlist.map((item) => (
-                    <tr key={item._id} className="border-b">
-                      <td className="flex items-center gap-4 px-4 py-4 whitespace-nowrap">
+                    <tr
+                      key={item._id}
+                      className="border-b hover:bg-gray-50 transition"
+                    >
+                      <td className="px-4 py-4 flex items-center gap-4 whitespace-nowrap">
                         <img
                           src={item.product.images[0]}
                           alt={item.product.name}
-                          className="w-14 h-14 sm:w-16 sm:h-16 object-contain"
+                          className="w-14 h-14 rounded object-contain border border-gray-200"
                         />
-                        <span className="font-semibold text-blue-900 text-sm sm:text-base">
-                          {item.product.name}
-                        </span>
+                        <span className="font-medium">{item.product.name}</span>
                       </td>
-                      <td className="px-4 py-4 text-blue-700 font-medium whitespace-nowrap">
+                      <td className="px-4 py-4 font-semibold text-[#1E3A8A] whitespace-nowrap">
                         ₦{item.product.price.toLocaleString()}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap flex gap-3">
                         <button
-                          className="bg-blue-600 cursor-pointer text-white text-sm px-3 py-1.5 rounded hover:bg-blue-700 transition"
                           onClick={() => handleAddToCart(item.product._id)}
+                          className={`${primaryBlue} ${hoverBlue} text-white text-sm px-4 py-2 rounded-md transition`}
                         >
-                         {loadingWishlist? 'Please Wait' : 'Add to Cart'}
+                          {loadingWishlist ? "Please wait..." : "Add to Cart"}
                         </button>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
                         <button
                           onClick={() => handleRemove(item._id)}
-                          className="text-red-500 hover:text-red-700 text-sm"
+                          className="text-red-600 hover:text-red-800 text-sm"
                         >
-                         {loadingWishlist? 'Processing...' : 'Remove'}
+                          {loadingWishlist ? "Removing..." : "Remove"}
                         </button>
                       </td>
                     </tr>
@@ -128,16 +111,16 @@ export default function WishlistPage() {
               </table>
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-center mt-8 gap-4">
               <button
-                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
                 onClick={handleClear}
+                className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-md transition"
               >
-               {loadingWishlist? 'Processing...':'Clear All'}
+                {loadingWishlist ? "Clearing..." : "Clear Wishlist"}
               </button>
               <Link
                 to="/cart"
-                className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+                className={`${primaryBlue} ${hoverBlue} text-white px-6 py-2 rounded-md transition`}
               >
                 Go To Cart
               </Link>
