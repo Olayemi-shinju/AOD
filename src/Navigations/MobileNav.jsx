@@ -109,7 +109,7 @@ export const MobileNav = () => {
             {open && <Modal open={open} handleClose={handleClose} />}
 
             {search && (
-                <div className="fixed inset-0 z-50 cursor-crosshair" onClick={handleClose1}>
+                <div className="inset-0 z-50 cursor-crosshair" onClick={handleClose1}>
                     <div className="absolute inset-0 bg-black opacity-40"></div>
                     <div className="absolute inset-0 flex items-center justify-center">
                         <Search onClose={handleClose1} />

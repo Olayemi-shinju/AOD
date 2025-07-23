@@ -51,7 +51,7 @@ export const Search = ({ onClose }) => {
 
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="inset-0 z-50">
       {/* Overlay */}
       <div className="absolute inset-0 bg-black opacity-40" onClick={onClose}></div>
 

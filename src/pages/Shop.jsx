@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import axios from 'axios';
 import { CartContext } from '../Contexts/Context';
 import ProductModal from '../modal/productModal';
+import { Helmet } from 'react-helmet-async'; // 🧠 Helmet for SEO
 
 const Shop = () => {
   const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -81,6 +82,15 @@ const Shop = () => {
 
   return (
     <div className='lg:px-20 px-7 pt-18'>
+      {/* 🔍 Helmet SEO Tags */}
+      <Helmet>
+        <title>{product.length > 0 ? `${product[0].category?.name} Products` : 'Shop'} | My Store</title>
+        <meta
+          name="description"
+          content={`Browse our ${product[0]?.category?.name || ''} collection. Shop the best products in this category.`}
+        />
+      </Helmet>
+
       <div>
         <h1 className='text-4xl font-semibold'>
           {product.length > 0 && product[0].category?.name}
@@ -111,7 +121,6 @@ const Shop = () => {
           type="button"
           className="flex mt-3 cursor-pointer w-full text-center justify-center items-center outline text bg-black p-3 text-white lg:w-[150px]"
         >
-          {/* Dummy filter button */}
           <span>
             <svg width="16" height="15" viewBox="0 0 16 15" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M14.9998 3.45001H10.7998" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -141,9 +150,9 @@ const Shop = () => {
               {sortedProducts.map((e, index) => (
                 <div key={index} className='p-4'>
                   <div className='flex relative flex-col gap-4 cursor-pointer product-card'>
-                    {/* Icons */}
                     <div
                       onClick={() => addToCart(e._id, 1)}
+                      title="Add to cart"
                       className='absolute top-2 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon cursor-pointer'
                     >
                       <FiShoppingCart />
@@ -154,6 +163,7 @@ const Shop = () => {
                         setSelectedProduct(e);
                         handleOpen();
                       }}
+                      title="Quick View"
                       className='absolute top-12 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-1 cursor-pointer'
                     >
                       <GrView />
@@ -161,12 +171,12 @@ const Shop = () => {
 
                     <div
                       onClick={() => addToWishlist(e._id)}
+                      title="Add to wishlist"
                       className='absolute top-20 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-2 cursor-pointer'
                     >
                       <BsHeart />
                     </div>
 
-                    {/* Image */}
                     <Link to={`/detail/${e.slug}`}>
                       <div className='w-full h-[250px] bg-gray-100 bg-opacity-50 flex justify-center items-center relative'>
                         {!imageLoaded[e.id] && (
@@ -186,10 +196,9 @@ const Shop = () => {
                       </div>
                     </Link>
 
-                    {/* Info */}
                     <div>
                       <p className='text-xl'>{e.name}</p>
-                      <p className='text-sm text-gray-400 truncate' style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <p className='text-sm text-gray-400 truncate'>
                         {e.description}
                       </p>
                       <p className='font-semibold'>₦{Number(e.price).toLocaleString()}</p>
@@ -207,7 +216,6 @@ const Shop = () => {
             </div>
           </motion.div>
 
-          {/* Pagination */}
           <div className="flex justify-center gap-4 py-10">
             <button
               onClick={handlePrevPage}
@@ -230,11 +238,8 @@ const Shop = () => {
         </>
       )}
 
-      {/* Modal */}
       {openProduct && selectedProduct && (
-        <>
-          <ProductModal handleClose={handleClose} product={selectedProduct} />
-        </>
+        <ProductModal handleClose={handleClose} product={selectedProduct} />
       )}
     </div>
   );

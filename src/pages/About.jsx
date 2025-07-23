@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 
 const stats = [
   { number: '200+', label: 'Happy Customers' },
@@ -17,14 +18,19 @@ const infoCards = [
 const About = () => {
   return (
     <div className="px-6 lg:px-20 py-20">
-      <style>{`
-        .info-card {
-          transition: box-shadow 0.3s ease;
-        }
-        .info-card:hover {
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        }
-      `}</style>
+      {/* SEO Meta Tags */}
+      <Helmet>
+        <title>About Us | Solar Marketplace Nigeria | Shop Quality Solar Products</title>
+        <meta
+          name="description"
+          content="We are Nigeria’s number one online solar marketplace offering trusted solar panels, inverters, and batteries. Shop from reliable vendors across Africa."
+        />
+        <meta
+          name="keywords"
+          content="solar panels Nigeria, buy inverters, batteries Lagos, solar shop online, trusted solar company Africa, eco-friendly energy Nigeria"
+        />
+        <meta name="robots" content="index, follow" />
+      </Helmet>
 
       <p className="text-sm text-blue-600 font-medium mb-2">About Us</p>
       <h1 className="text-4xl font-bold leading-snug max-w-2xl mb-10">
@@ -32,6 +38,7 @@ const About = () => {
       </h1>
 
       <img
+      loading="lazy"
         src="https://www.ecofluxng.com/assets/img/about/about.jpg"
         alt="solar"
         className="w-full rounded mb-12 object-cover max-h-[500px]"

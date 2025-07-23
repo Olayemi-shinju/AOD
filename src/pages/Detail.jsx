@@ -11,6 +11,7 @@ import { CartContext } from '../Contexts/Context';
 import { GrView } from 'react-icons/gr';
 import { BsHeart } from 'react-icons/bs';
 import { motion } from "framer-motion";
+import { Helmet } from 'react-helmet-async';
 
 function formatTimeAgo(date) {
   const now = new Date();
@@ -32,7 +33,7 @@ function formatTimeAgo(date) {
 }
 
 const Detail = () => {
-  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://api.solarticity.com";
 
   const { addToWishlist, addToCart } = useContext(CartContext)
   const { slug } = useParams();
@@ -179,6 +180,23 @@ const Detail = () => {
 
   return (
     <div className='xl:px-10 p-2 xl:py-10'>
+      {/* SEO Meta Tags */}
+      <Helmet>
+        <title>{product.name} | Solarticity - Premium Solar Products in Nigeria</title>
+        <meta
+          name="description"
+          content={`${product.description.substring(0, 160)}... Buy ${product.name} at the best price in Nigeria.`}
+        />
+        <meta
+          name="keywords"
+          content={`${product.name}, solar products Nigeria, buy ${product.category?.name || 'solar equipment'}, ${product.brand} Nigeria, renewable energy solutions`}
+        />
+        <meta property="og:title" content={`${product.name} | Solarticity`} />
+        <meta property="og:description" content={product.description.substring(0, 160)} />
+        {images.length > 0 && <meta property="og:image" content={images[0]} />}
+        <meta property="og:type" content="product.item" />
+      </Helmet>
+
       {/* Breadcrumb */}
       <div className='xl:flex px-4 gap-2 items-center'>
         <div className='text-gray-400 text-md flex items-center'>
@@ -200,7 +218,7 @@ const Detail = () => {
                 <img
                   key={i}
                   src={img}
-                  alt={`thumb-${i}`}
+                  alt={`${product.name} thumbnail ${i+1}`}
                   className={`w-full h-auto border rounded-sm object-cover cursor-pointer ${i === selectedImageIndex ? 'border-blue-500 border-2' : 'border-gray-300'}`}
                   onClick={() => setSelectedImageIndex(i)}
                 />
@@ -212,7 +230,11 @@ const Detail = () => {
             </div>
             <div className='w-[85%]'>
               {images.length > 0 ? (
-                <img src={images[selectedImageIndex]} alt='main' className='w-[100%] rounded-sm object-cover' />
+                <img 
+                  src={images[selectedImageIndex]} 
+                  alt={`${product.name} - ${product.brand}`} 
+                  className='w-[100%] rounded-sm object-cover' 
+                />
               ) : (
                 <div className='w-[90%] h-[400px] bg-gray-200 flex items-center justify-center text-gray-400'>
                   No Images Available
@@ -226,7 +248,7 @@ const Detail = () => {
         <div className='lg:w-[60%]'>
           <div className='flex flex-col bg-white'>
             <h2 className='text-sm text-gray-500 mb-2'>{product.brand}</h2>
-            <p className='text-2xl lg:text-3xl font-semibold text-gray-800 leading-snug'>{product.name}</p>
+            <h1 className='text-2xl lg:text-3xl font-semibold text-gray-800 leading-snug'>{product.name}</h1>
             <div className='bg-gray-200 mt-3 w-[80px] text-center'>
               <span className='text-blue-500 text-sm font-semibold'>In Stock</span>
             </div>
@@ -282,7 +304,7 @@ const Detail = () => {
                 <p className='text-sm font-medium text-gray-600 mb-1'>Guaranteed safe</p>
                 <p className='text-sm font-medium text-gray-600'> & secure checkout</p>
                 <div className='flex items-center space-x-4 mt-3'>
-                  <img src={paypalImg} alt="paypal" className='h-6' />
+                  <img src={paypalImg} alt="paypal payment" className='h-6' />
                 </div>
               </div>
             </div>

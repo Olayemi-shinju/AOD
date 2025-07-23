@@ -3,6 +3,7 @@ import { CartContext } from "../Contexts/Context";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import ClipLoader from "react-spinners/ClipLoader";
+import { Helmet } from "react-helmet-async"; // ✅ Helmet for SEO
 
 const ITEMS_PER_PAGE = 8;
 
@@ -45,6 +46,14 @@ const Project = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] px-4 py-8 sm:px-8">
+      <Helmet>
+        <title>Featured Projects | My Store</title>
+        <meta
+          name="description"
+          content={`Explore featured projects by ${data?.name || "our community"}. Browse innovative solutions and past works.`}
+        />
+      </Helmet>
+
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">

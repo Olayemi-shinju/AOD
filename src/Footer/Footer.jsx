@@ -64,8 +64,16 @@ const Footer = () => {
                         <Link to='tel:+2349135611021'><li className=' text-2xl texts font-bold cursor-pointer'>+234 913 561 1021</li></Link>
                         {/* <h4><a href="tel:+2349168652676">+234 916 865 2676</a></h4> */}
                         <Link to='mailto:a.o.dsolatricity@gmail.com'><li className='flex items-center gap-2 text-gray-400 text-sm texts font-semibold mt-3 cursor-pointer'><CiMail className='text-lg' /> a.o.dsolatricity@gmail.com</li></Link>
-                        <Link><li className='text-gray-400 flex items-start gap-2 text-sm texts font-semibold mt-3 cursor-pointer'><CiLocationOn className='text-xl' /> Aco Phase Two,<br></br>
-                            Lugbe, Abuja,<br></br> Nigeria</li></Link>
+                        <a
+                            href="https://www.google.com/maps/place/Aco+Phase+Two,+Lugbe,+Abuja,+Nigeria"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <li className='text-gray-400 flex items-start gap-2 text-sm texts font-semibold mt-3 cursor-pointer'>
+                                <CiLocationOn className='text-xl' /> Aco Phase Two,<br />
+                                Lugbe, Abuja,<br /> Nigeria
+                            </li>
+                        </a>
 
                     </ul>
                 </div>

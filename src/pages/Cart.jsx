@@ -7,6 +7,7 @@ import {
   FaMinus,
   FaSpinner
 } from 'react-icons/fa';
+import { Helmet } from 'react-helmet-async';
 
 const Cart = () => {
   const {
@@ -68,6 +69,20 @@ const Cart = () => {
 
   return (
     <div className="lg:px-20 px-4 py-10 overflow-x-hidden">
+      {/* Helmet SEO */}
+      <Helmet>
+        <title>Shopping Cart | Solar Products Nigeria</title>
+        <meta
+          name="description"
+          content="View items in your cart and get ready to purchase solar panels, inverters, and batteries from trusted vendors in Nigeria and across Africa."
+        />
+        <meta
+          name="keywords"
+          content="solar cart Nigeria, inverter checkout, battery shop, buy solar online, solar store Lagos, solar ecommerce Africa"
+        />
+        <meta name="robots" content="index, follow" />
+      </Helmet>
+
       <div className="mb-8">
         <h1 className="text-3xl sm:text-4xl font-semibold">Shopping Cart</h1>
         <div className="text-sm text-gray-400 mt-2 flex gap-2 flex-wrap">
@@ -212,3 +227,6 @@ const Cart = () => {
 };
 
 export default Cart;
+
+
+

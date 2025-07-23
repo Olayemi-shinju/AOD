@@ -3,11 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { CartContext } from "../Contexts/Context";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { Helmet } from "react-helmet-async"; // ✅ Helmet import
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const [isFormValid, setIsFormValid] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // 👈 new loading state
+  const [isLoading, setIsLoading] = useState(false);
   const { data, cartData, getUserCart } = useContext(CartContext);
 
   const userData = JSON.parse(localStorage.getItem("user") || "{}");
@@ -39,7 +40,7 @@ const CheckoutPage = () => {
       return;
     }
 
-    setIsLoading(true); // 👈 start loader
+    setIsLoading(true);
 
     try {
       const resp = await axios.post(`${VITE_API_BASE_URL}/checkout`, post, {
@@ -51,12 +52,12 @@ const CheckoutPage = () => {
       if (resp.data.success === true) {
         toast.success(resp.data.msg);
         navigate("/profile");
-        await getUserCart()
+        await getUserCart();
       }
     } catch (error) {
       toast.error(error?.response?.data?.message || error?.response?.data?.msg || "An error occurred");
     } finally {
-      setIsLoading(false); // 👈 stop loader
+      setIsLoading(false);
     }
   };
 
@@ -88,34 +89,44 @@ const CheckoutPage = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-sans bg-gray-50 text-gray-800">
+      {/* ✅ Helmet for SEO */}
+      <Helmet>
+        <title>Checkout | Solar Products Nigeria</title>
+        <meta
+          name="description"
+          content="Securely complete your solar product order. Enter your billing details and review your cart before placing the order."
+        />
+        <meta
+          name="keywords"
+          content="checkout, solar order, place order, solar products Nigeria, solar billing, renewable checkout"
+        />
+        <meta name="robots" content="noindex, follow" />
+      </Helmet>
+
       <div className="mb-8">
         <h1 className="text-2xl sm:text-4xl font-bold mb-1">Checkout</h1>
         <div className="text-sm sm:text-lg text-gray-500">
-          <Link to="/" className="text-gray-800 hover:underline">
-            Home
-          </Link>{" "}
-          • Checkout
+          <Link to="/" className="text-gray-800 hover:underline">Home</Link> • Checkout
         </div>
       </div>
-
       <div className="flex flex-col md:flex-row gap-8 items-start">
         <div className="flex-1 bg-white shadow-md rounded-xl p-6 sm:p-8">
           <h2 className="text-lg sm:text-xl font-semibold mb-5">Billing Details</h2>
 
           <div className="space-y-5">
             {[{ label: "Full Name", name: "name", required: true, type: "text" },
-              {
-                label: "Email Address",
-                name: "email",
-                required: true,
-                type: "email",
-                readOnly: true,
-                extraClasses: "bg-gray-100",
-              },
-              { label: "Phone Number", name: "phone", required: true, type: "tel" },
-              { label: "Street Address", name: "street", required: true, type: "text" },
-              { label: "Landmark (optional)", name: "landmark", type: "text" },
-              { label: "Region/Area", name: "region", required: true, type: "text" },
+            {
+              label: "Email Address",
+              name: "email",
+              required: true,
+              type: "email",
+              readOnly: true,
+              extraClasses: "bg-gray-100",
+            },
+            { label: "Phone Number", name: "phone", required: true, type: "tel" },
+            { label: "Street Address", name: "street", required: true, type: "text" },
+            { label: "Landmark (optional)", name: "landmark", type: "text" },
+            { label: "Region/Area", name: "region", required: true, type: "text" },
             ].map(({ label, name, required, type, readOnly = false, extraClasses = "" }) => (
               <div key={name}>
                 <label className="block mb-1 font-bold">
@@ -200,9 +211,8 @@ const CheckoutPage = () => {
               onClick={handleSubmit}
               type="submit"
               disabled={isLoading}
-              className={`mt-4 w-full cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded transition duration-200 flex items-center justify-center ${
-                isLoading ? "opacity-70 cursor-not-allowed" : ""
-              }`}
+              className={`mt-4 w-full cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded transition duration-200 flex items-center justify-center ${isLoading ? "opacity-70 cursor-not-allowed" : ""
+                }`}
             >
               {isLoading ? (
                 <>

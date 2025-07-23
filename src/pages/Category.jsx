@@ -1,10 +1,11 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async'; // ✅ Import Helmet
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true); // 🔥 new loading state
+  const [loading, setLoading] = useState(true);
   const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
@@ -20,7 +21,7 @@ const Categories = () => {
         console.log(error);
         setCategories([]);
       } finally {
-        setLoading(false); // 🔥 done loading whether success or fail
+        setLoading(false);
       }
     };
 
@@ -29,6 +30,20 @@ const Categories = () => {
 
   return (
     <div className="px-6 lg:px-20 pt-20">
+      {/* ✅ Helmet for SEO */}
+      <Helmet>
+        <title>Product Categories | Solar Products Nigeria</title>
+        <meta
+          name="description"
+          content="Browse solar product categories including panels, inverters, batteries, and more from vendors across Nigeria and Africa."
+        />
+        <meta
+          name="keywords"
+          content="solar categories Nigeria, inverter category, battery section, solar product types, solar electronics Lagos"
+        />
+        <meta name="robots" content="index, follow" />
+      </Helmet>
+
       <h1 className="text-4xl font-bold mb-2">Categories</h1>
       <div className="text-sm text-gray-500 mb-10 flex gap-2">
         <Link to="/">Home</Link>
@@ -36,7 +51,6 @@ const Categories = () => {
         <span>Categories</span>
       </div>
 
-      {/* 🔥 Loader */}
       {loading ? (
         <div className="w-full flex justify-center items-center py-20">
           <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-opacity-50"></div>

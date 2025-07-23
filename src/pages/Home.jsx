@@ -4,26 +4,28 @@ import { TfiTruck } from "react-icons/tfi";
 import { LuDollarSign } from "react-icons/lu";
 import { PiSealPercent } from "react-icons/pi";
 import { LuHeadphones } from "react-icons/lu";
-import '../App.css'
+import '../App.css';
 import { Link } from 'react-router-dom';
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { FiShoppingCart } from 'react-icons/fi';
 import { GrView } from 'react-icons/gr';
 import { BsHeart } from 'react-icons/bs';
 import axios from 'axios';
 import { CartContext } from '../Contexts/Context';
 import ProductModal from '../modal/productModal';
+import { Helmet } from 'react-helmet-async';
 
 const Home = () => {
-  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const { addToWishlist, addToCart, openModal } = useContext(CartContext)
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://api.solarticity.com";
+  const { addToWishlist, addToCart } = useContext(CartContext);
   const [imageLoaded, setImageLoaded] = useState({});
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [products, setProducts] = useState([])
+  const [products, setProducts] = useState([]);
   const [openProduct, setOpenProduct] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [categories, setCategories] = useState([]);
   const [addingToCart, setAddingToCart] = useState({});
+  const [direction, setDirection] = useState(1); // 1 for right, -1 for left
 
   useEffect(() => {
     const fetchCategory = async () => {
@@ -66,23 +68,23 @@ const Home = () => {
     }
   };
 
-  const limit = 16
+  const limit = 16;
 
-  // slider begin function
+  // Slider content with larger images
   const slides = [
     {
       bgColor: 'bg-[#e3edf6]',
       content: (
-        <div className="flex flex-col lg:flex-row items-center justify-between xl:w-[83%] w-full mx-auto px-4 h-auto lg:h-[450px] py-20">
-          <div className="text-[#021d35] text-center lg:text-left mb-6 lg:mb-0">
+        <div className="flex flex-col lg:flex-row items-center justify-between xl:w-[83%] w-full mx-auto px-4 h-auto lg:h-[550px] py-20">
+          <div className="text-[#021d35] text-center lg:text-left mb-6 lg:mb-0 lg:w-1/2">
             <p className="text-lg">Battery Collection Program</p>
             <h1 className="text-3xl lg:text-5xl xl:text-6xl font-bold">Recycle and Save</h1>
             <p className="text-xl lg:text-2xl font-serif mt-4">Return your used batteries and get exclusive offers</p>
           </div>
           <img
             src="https://www.ecofluxng.com/assets/battery-re-CPLhSbyl.png"
-            alt="Battery recycling"
-            className="w-full max-w-[400px] lg:max-w-[450px]"
+            alt="Battery recycling program"
+            className="w-full max-w-[500px] lg:max-w-[600px] object-contain"
           />
         </div>
       )
@@ -90,10 +92,10 @@ const Home = () => {
     {
       bgColor: 'bg-[#e3edf6] opacity-90',
       content: (
-        <div className="flex flex-col lg:flex-row items-center justify-between xl:w-[83%] w-full mx-auto px-4 h-auto lg:h-[450px] py-20">
+        <div className="flex flex-col lg:flex-row items-center justify-between xl:w-[83%] w-full mx-auto px-4 h-auto lg:h-[550px] py-20">
           <div className="text-black w-full text-center lg:text-left lg:w-1/2 mb-6 lg:mb-0">
             <h1 className="text-3xl lg:text-5xl xl:text-6xl font-bold">
-              Africa's Number One Solar Marketplace
+              Nigeria's Premier Solar Marketplace
             </h1>
             <p className="text-xl lg:text-2xl font-serif mt-4">
               Go solar, <span className="text-[#a3ca47]">Go green</span>
@@ -101,8 +103,8 @@ const Home = () => {
           </div>
           <img
             src="https://www.ecofluxng.com/assets/africa-3lfmcgl1.png"
-            alt="Solar marketplace"
-            className="w-full max-w-[400px] lg:max-w-[450px]"
+            alt="Solar marketplace banner"
+            className="w-full max-w-[500px] lg:max-w-[600px] object-contain"
           />
         </div>
       )
@@ -110,8 +112,8 @@ const Home = () => {
     {
       bgColor: 'bg-[#e3edf6]',
       content: (
-        <div className="flex flex-col lg:flex-row items-center justify-between xl:w-[87.5%] w-full mx-auto px-4 h-auto lg:h-[450px] py-20">
-          <div className="text-center lg:text-left mb-10 lg:mb-0">
+        <div className="flex flex-col lg:flex-row items-center justify-between xl:w-[87.5%] w-full mx-auto px-4 h-auto lg:h-[550px] py-20">
+          <div className="text-center lg:text-left mb-10 lg:mb-0 lg:w-1/2">
             <p className="text-lg">Energy <strong>Calculator</strong></p>
             <h1 className="text-3xl lg:text-5xl xl:text-6xl font-bold leading-tight">
               Unsure of your home's solar needs?
@@ -124,8 +126,8 @@ const Home = () => {
           </div>
           <img
             src="https://www.ecofluxng.com/assets/calculator-D9rNbQO-.png"
-            alt="Energy calculator"
-            className="w-full max-w-[400px] lg:max-w-[450px]"
+            alt="Solar energy calculator"
+            className="w-full max-w-[500px] lg:max-w-[600px] object-contain"
           />
         </div>
       )
@@ -133,22 +135,23 @@ const Home = () => {
   ];
 
   const nextSlide = () => {
+    setDirection(1); // Slide to the left (new slide comes from right)
     setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
   };
 
   const prevSlide = () => {
+    setDirection(-1); // Slide to the right (new slide comes from left)
     setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
   };
 
   useEffect(() => {
     const interval = setInterval(() => {
       nextSlide();
-    }, 5000); // Slide every 5 seconds
+    }, 5000);
 
-    return () => clearInterval(interval); // Cleanup on unmount
+    return () => clearInterval(interval);
   }, [currentSlide]);
 
-  // Fetch products on page load
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -168,38 +171,67 @@ const Home = () => {
     fetchProduct();
   }, []);
 
-  // Filter functions
-  const getTrendingProducts = () => products.filter(p => p.isTrending === true)
-  const getNewArrivalProducts = () => products.filter(p => p.isNewArrival === true)
+  const getTrendingProducts = () => products.filter(p => p.isTrending === true);
+  const getNewArrivalProducts = () => products.filter(p => p.isNewArrival === true);
 
   return (
     <>
-      <section className="relative">
-        <div className={`${slides[currentSlide].bgColor} transition-colors duration-500`}>
-          {slides[currentSlide].content}
-        </div>
+      <Helmet>
+        <title>Solarticity - Nigeria's Leading Solar Products Marketplace</title>
+        <meta
+          name="description"
+          content="Shop premium solar panels, inverters, batteries and accessories at Solarticity. Nigeria's trusted solar marketplace with quality products and expert support."
+        />
+        <meta
+          name="keywords"
+          content="solar panels Nigeria, buy inverters Lagos, solar batteries Abuja, renewable energy Nigeria, solar products online"
+        />
+        <meta property="og:title" content="Solarticity - Premium Solar Products in Nigeria" />
+        <meta property="og:description" content="Nigeria's trusted solar marketplace for quality panels, inverters and batteries with expert support and installation services." />
+        <meta property="og:image" content="https://www.solarticity.com/assets/solar-marketplace.jpg" />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
+      {/* Slider with corrected directions */}
+      <section className="relative overflow-hidden h-[550px]">
+        <AnimatePresence initial={false} custom={direction}>
+          <motion.div
+            key={currentSlide}
+            custom={direction}
+            initial={{ opacity: 0, x: direction > 0 ? 1000 : -1000 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: direction > 0 ? -1000 : 1000 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            className={`${slides[currentSlide].bgColor} absolute top-0 left-0 w-full h-full`}
+          >
+            {slides[currentSlide].content}
+          </motion.div>
+        </AnimatePresence>
 
         <button
           onClick={prevSlide}
-          className="absolute left-4 text-white hover:text-black top-1/2 transform -translate-y-1/2 bg-[#00000000] hover:bg-white p-4 rounded-full border-1 border-white duration-200 transition"
+          className="absolute left-4 text-white hover:text-black top-1/2 transform -translate-y-1/2 bg-[#00000000] hover:bg-white p-4 rounded-full border-1 border-white duration-200 transition z-10"
           aria-label="Previous slide"
         >
-          <FaChevronLeft className="" />
+          <FaChevronLeft />
         </button>
 
         <button
           onClick={nextSlide}
-          className="absolute right-4 text-white hover:text-black top-1/2 transform -translate-y-1/2 bg-[#00000000] hover:bg-white p-4 rounded-full border-1 border-white duration-200 transition"
+          className="absolute right-4 text-white hover:text-black top-1/2 transform -translate-y-1/2 bg-[#00000000] hover:bg-white p-4 rounded-full border-1 border-white duration-200 transition z-10"
           aria-label="Next slide"
         >
-          <FaChevronRight className="" />
+          <FaChevronRight />
         </button>
 
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
           {slides.map((_, index) => (
             <button
               key={index}
-              onClick={() => setCurrentSlide(index)}
+              onClick={() => {
+                setDirection(index > currentSlide ? 1 : -1);
+                setCurrentSlide(index);
+              }}
               className={`w-3 h-3 rounded-full ${currentSlide === index ? 'bg-white' : 'bg-gray-300'}`}
               aria-label={`Go to slide ${index + 1}`}
             />
@@ -207,9 +239,8 @@ const Home = () => {
         </div>
       </section>
 
-      {/* second section */}
+      {/* Second section */}
       <section className="w-[91%] max-w-screen-xl mx-auto mt-10 px-4">
-        {/* Icons Row */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 justify-items-center px-4">
           {categories?.slice(0, 5).map((e) => (
             <div
@@ -221,7 +252,7 @@ const Home = () => {
                   <img
                     src={e.image}
                     className="transition hover:scale-105 rounded-full object-cover w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] md:w-[100px] md:h-[100px]"
-                    alt={e.name}
+                    alt={`${e.name} category`}
                   />
                 </div>
               </Link>
@@ -230,7 +261,6 @@ const Home = () => {
           ))}
         </div>
 
-        {/* Features Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-10">
           <div className="text-blue-400 flex items-center gap-4 py-5 px-4 bg-[#f6f7f9] rounded-lg sm:rounded-l-lg">
             <TfiTruck className="text-3xl" />
@@ -263,14 +293,13 @@ const Home = () => {
         </div>
       </section>
 
-      {/* products trending */}
+      {/* Trending Products */}
       {getTrendingProducts().length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.5 }}
         >
-          {/* Heading */}
           <p className='text-3xl font-bold px-18 pt-18 pb-2 text-gray-800'>
             Trending Products
           </p>
@@ -283,6 +312,7 @@ const Home = () => {
                     onClick={() => handleAddToCart(e._id, 1)}
                     className='absolute top-2 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon cursor-pointer'
                     disabled={addingToCart[e._id]}
+                    title="Add to cart"
                   >
                     {addingToCart[e._id] ? (
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
@@ -291,10 +321,10 @@ const Home = () => {
                     )}
                   </div>
 
-                  <div onClick={() => handleOpen(e)} className='absolute top-12 right-2 z-10 bg-white p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-1'>
+                  <div title="Quick view" onClick={() => handleOpen(e)} className='absolute top-12 right-2 z-10 bg-white p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-1'>
                     <GrView />
                   </div>
-                  <div onClick={() => addToWishlist(e._id)} className='absolute top-20 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-2'>
+                  <div title="Add to wishlist" onClick={() => addToWishlist(e._id)} className='absolute top-20 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-2'>
                     <BsHeart />
                   </div>
                   <Link to={`/detail/${e.slug}`}>
@@ -306,7 +336,7 @@ const Home = () => {
                       )}
                       <img
                         src={e.images[0]}
-                        alt={e.title}
+                        alt={e.name}
                         className={`w-full h-full object-cover ${!imageLoaded[e.id] ? 'invisible' : ''}`}
                         onLoad={() => handleImageLoad(e.id)}
                         onError={(e) => {
@@ -327,7 +357,7 @@ const Home = () => {
         </motion.div>
       )}
 
-      {/* bg for shop */}
+      {/* Promo Banner */}
       <section className="w-[90%] xl:w-[82%] mx-auto my-10">
         <div className="bg-blue-400 text-white rounded-lg px-6 py-10 md:px-16 md:py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-10">
@@ -346,7 +376,7 @@ const Home = () => {
             <div className="w-full flex justify-center md:justify-end">
               <img
                 src="https://www.ecofluxng.com/assets/solar-savings-DTC1YK6H.png"
-                alt="Solar savings"
+                alt="Solar savings season promotion"
                 className="w-full max-w-md"
               />
             </div>
@@ -354,7 +384,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* new arrivals */}
+      {/* New Arrivals */}
       {getNewArrivalProducts().length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -373,6 +403,7 @@ const Home = () => {
                     onClick={() => handleAddToCart(e._id, 1)}
                     className='absolute top-2 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon cursor-pointer'
                     disabled={addingToCart[e._id]}
+                      title="Add to cart"
                   >
                     {addingToCart[e._id] ? (
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600"></div>
@@ -381,10 +412,10 @@ const Home = () => {
                     )}
                   </div>
 
-                  <div onClick={() => handleOpen(e)} className='absolute top-12 right-2 z-10 bg-white p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-1'>
+                  <div onClick={() => handleOpen(e)}   title="Quick view" className='absolute top-12 right-2 z-10 bg-white p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-1'>
                     <GrView />
                   </div>
-                  <div onClick={() => addToWishlist(e._id)} className='absolute top-20 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-2'>
+                  <div onClick={() => addToWishlist(e._id)}   title="Add to wishlist" className='absolute top-20 right-2 z-10 bg-white change p-2 h-[40px] w-[40px] rounded-full flex items-center justify-center icon delay-2'>
                     <BsHeart />
                   </div>
                   <Link to={`/detail/${e.slug}`}>
@@ -396,7 +427,7 @@ const Home = () => {
                       )}
                       <img
                         src={e.images[0]}
-                        alt={e.title}
+                        alt={e.name}
                         className={`w-full h-full object-cover ${!imageLoaded[e.id] ? 'invisible' : ''}`}
                         onLoad={() => handleImageLoad(e.id)}
                         onError={(e) => {
@@ -416,6 +447,7 @@ const Home = () => {
           </div>
         </motion.div>
       )}
+
       {/* Product Modal */}
       {openProduct && selectedProduct && (
         <ProductModal product={selectedProduct} handleClose={handleClose} />

@@ -6,9 +6,10 @@ import { CartContext } from '../Contexts/Context';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 const Profile = () => {
-  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://api.solarticity.com";
 
   const [cancelingOrderId, setCancelingOrderId] = useState(null);
   const [activeTab, setActiveTab] = useState(() => {
@@ -31,7 +32,6 @@ const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate()
 
-
   const sendmail = datas.email
   // Initialize formData with empty strings
   const [formData, setFormData] = useState({
@@ -40,7 +40,6 @@ const Profile = () => {
     street: '',
     landmark: ''
   });
-
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -70,7 +69,6 @@ const Profile = () => {
     </div>
   );
 
-
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
@@ -97,6 +95,7 @@ const Profile = () => {
       setIsLoading(false); // stop loader
     }
   }
+
   const getTabClass = (tab) => (
     `flex p-4 cursor-pointer text-sm font-semibold items-center gap-3 
     ${activeTab === tab ? 'bg-gray-100 text-blue-500' : 'text-gray-600'}`
@@ -113,12 +112,12 @@ const Profile = () => {
       if (resp.data.success === true) {
         setData(resp?.data?.data);
         setCart([])
-        // 🔥 Remove user from localStorage
+        // Remove user from localStorage
         localStorage.removeItem('user');
-        localStorage.removeItem('activeTab'); // Optional: clear active tab
+        localStorage.removeItem('activeTab');
 
-        // ✅ Trigger NavBar to re-sync local user
-        if (window.syncLocalUser) window.syncLocalUser(); // ← Add this line
+        // Trigger NavBar to re-sync local user
+        if (window.syncLocalUser) window.syncLocalUser();
 
         toast.success(resp.data.msg);
         navigate('/');
@@ -128,7 +127,6 @@ const Profile = () => {
       console.log(error);
     }
   };
-
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -154,7 +152,6 @@ const Profile = () => {
     }
   }, [token]);
 
-
   const handleCanceled = async (_id) => {
     try {
       setCancelingOrderId(_id);
@@ -179,8 +176,24 @@ const Profile = () => {
       setCancelingOrderId(null);
     }
   };
+
   return (
     <div className='xl:px-18 px-8 py-5'>
+      {/* SEO Meta Tags */}
+      <Helmet>
+        <title>My Account | Solarticity - Solar Marketplace</title>
+        <meta
+          name="description"
+          content="Manage your Solarticity account, view orders, update profile information, and track your solar product purchases."
+        />
+        <meta
+          name="keywords"
+          content="solarticity account, solar orders, profile update, solar marketplace, renewable energy Nigeria"
+        />
+        <meta property="og:title" content="My Account | Solarticity" />
+        <meta property="og:description" content="Manage your Solarticity account and solar product orders" />
+      </Helmet>
+
       <div className='w-full xl:flex mt-12 items-start gap-10'>
         {/* Sidebar */}
         <div className='bg-white xl:w-[45%] mt-4 shadow'>
@@ -358,6 +371,3 @@ const Profile = () => {
 };
 
 export default Profile;
-
-
-
