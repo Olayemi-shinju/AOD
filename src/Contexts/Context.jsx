@@ -66,7 +66,7 @@ export const CartProvider = ({ children }) => {
           setUser(null);
           window.location.href = "/register";
         } else {
-          toast.error("Failed to fetch user data.");
+         console.log('Failed to fetch user data')
         }
       }
     };
@@ -84,7 +84,6 @@ export const CartProvider = ({ children }) => {
       });
       setWishlist(resp.data.data || []);
     } catch (error) {
-      logError("Failed to fetch wishlist", error);
       toast.error("Failed to fetch wishlist.");
     } finally {
       setLoadingWishlist(false);
