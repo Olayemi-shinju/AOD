@@ -12,6 +12,7 @@ import { CartContext } from '../Contexts/Context';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
+import { CiLocationOn } from 'react-icons/ci';
 
 const Contact = () => {
   const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://api.solarticity.com";
@@ -138,11 +139,10 @@ const Contact = () => {
                     placeholder={field.placeholder}
                     onChange={handleChange}
                     readOnly={isReadOnly}
-                    className={`w-full border border-gray-200 text-md p-3 rounded-sm focus:outline-none focus:ring-2 ${
-                      isReadOnly
-                        ? 'text-gray-400 bg-gray-100 cursor-not-allowed focus:ring-gray-200'
-                        : 'text-gray-700 focus:ring-blue-500'
-                    }`}
+                    className={`w-full border border-gray-200 text-md p-3 rounded-sm focus:outline-none focus:ring-2 ${isReadOnly
+                      ? 'text-gray-400 bg-gray-100 cursor-not-allowed focus:ring-gray-200'
+                      : 'text-gray-700 focus:ring-blue-500'
+                      }`}
                   />
                 </div>
               );
@@ -191,11 +191,16 @@ const Contact = () => {
 
           <div className='flex gap-4 flex-col items-start'>
             <img src={icon2} alt="location" className='w-[70px]' />
-            <p className='text-sm text-[#011627] leading-6'>
-              Aco Estate Phase Two,<br />
-              Lugbe, Abuja<br />
-              900107
-            </p>
+            <a
+              href="https://www.google.com/maps/place/Aco+Phase+Two,+Lugbe,+Abuja,+Nigeria"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <li className='text-gray-400 flex items-start gap-2 text-md texts font-semibold mt-3 cursor-pointer'>
+                Aco Phase Two,<br />
+                Lugbe, Abuja,<br /> Nigeria
+              </li>
+            </a>
           </div>
 
           <div className='flex gap-4 flex-col items-start'>

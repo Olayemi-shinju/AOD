@@ -26,7 +26,7 @@ export default function NotFound() {
 
       {/* Back Home Button */}
       <Link to="/" className="mt-8">
-        <button className="bg-blue-600 hover:bg-blue-700 transition text-white text-sm font-medium px-6 py-3 rounded-lg shadow-md">
+        <button className="bg-blue-600 cursor-pointer hover:bg-blue-700 transition text-white text-sm font-medium px-6 py-3 rounded-lg shadow-md">
           Back to Homepage
         </button>
       </Link>
