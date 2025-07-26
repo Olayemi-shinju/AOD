@@ -22,19 +22,41 @@ export const MobileNav = () => {
     const handleClose1 = () => setSearch(false);
 
     useEffect(() => {
-        const stored = localStorage.getItem('user');
-        if (stored) {
-            try {
-                const parsed = JSON.parse(stored);
-                if (parsed?.value && parsed.expiry > Date.now()) {
-                    setLocalUser(parsed.value);
-                } else {
+        const checkUser = () => {
+            const stored = localStorage.getItem('user');
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    if (parsed?.value && parsed.expiry > Date.now()) {
+                        setLocalUser(parsed.value);
+                    } else {
+                        setLocalUser(null);
+                        localStorage.removeItem('user');
+                    }
+                } catch {
+                    setLocalUser(null);
                     localStorage.removeItem('user');
                 }
-            } catch {
-                localStorage.removeItem('user');
+            } else {
+                setLocalUser(null);
             }
-        }
+        };
+
+        // Initial check
+        checkUser();
+
+        // Listen for localStorage changes
+        window.addEventListener('storage', checkUser);
+
+        // Poll for changes in case login happens in this tab
+        const interval = setInterval(() => {
+            checkUser();
+        }, 1000);
+
+        return () => {
+            window.removeEventListener('storage', checkUser);
+            clearInterval(interval);
+        };
     }, []);
 
     // Scroll lock effect when search modal is open
@@ -104,8 +126,8 @@ export const MobileNav = () => {
                     <IoReorderThreeOutline className="text-3xl font-light text-gray-600" />
                     <li className="list-none text-gray-500 font-semibold text-sm">Menu</li>
                 </div>
-
             </div>
+
             {open && <Modal open={open} handleClose={handleClose} />}
 
             {search && (
