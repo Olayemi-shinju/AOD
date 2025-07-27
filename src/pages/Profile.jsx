@@ -7,7 +7,11 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-
+import { IoPersonOutline } from "react-icons/io5";
+import { GoMail } from "react-icons/go";
+import { FaPhone } from "react-icons/fa6";
+import { FaRegAddressCard } from "react-icons/fa";
+import { FaLandmark } from "react-icons/fa";
 const Profile = () => {
   const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://api.solarticity.com";
 
@@ -248,27 +252,27 @@ const Profile = () => {
 
               <div className='xl:flex items-center gap-3 w-full'>
                 <div className='focus-within:border-blue-500 border-gray-200 w-full mt-4 border-[0.1px] p-3 flex items-center gap-4'>
-                  <span>👤</span>
+                  <IoPersonOutline/>
                   <input type="text" value={formData.name} name='name' onChange={handleChange} placeholder='Full Name' className='text-sm p-2 outline-none w-full text-gray-400' />
                 </div>
                 <div className='focus-within:border-blue-500 border-gray-200 w-full mt-4 border-[0.1px] p-3 flex items-center gap-4'>
-                  <span>📧</span>
+                  <GoMail/>
                   <input type="email" value={data.email} placeholder='Email address' className='text-sm p-2 outline-none w-full text-gray-400' />
                 </div>
               </div>
 
               <div className='focus-within:border-blue-500 border-gray-200 xl:w-[50%] mt-4 border-[0.1px] p-3 flex items-center gap-4'>
-                <span>📱</span>
+                <FaPhone/>
                 <input type="number" name='phone' value={formData.phone} onChange={handleChange} placeholder='Phone Number' className='outline-none p-2 w-full text-sm text-gray-400' />
               </div>
 
               <div className='focus-within:border-blue-500 border-gray-200 xl:w-full mt-4 border-[0.1px] p-3 flex items-center gap-4'>
-                <span>🏠</span>
+               <FaRegAddressCard/>
                 <input type="text" name='street' onChange={handleChange} value={formData.street} placeholder='Street Address' className='text-sm p-2 outline-none w-full text-gray-400' />
               </div>
 
               <div className='focus-within:border-blue-500 border-gray-200 xl:w-full mt-4 border-[0.1px] p-3 flex items-center gap-4'>
-                <span className='w-4'>📍</span>
+                <FaLandmark/>
                 <input type="text" name='landmark' value={formData.landmark} onChange={handleChange} placeholder='Landmark (Optional)' className='outline-none p-2 w-full text-gray-400 text-sm' />
               </div>
 
