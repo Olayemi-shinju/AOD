@@ -27,7 +27,7 @@ const Profile = () => {
     localStorage.setItem('activeTab', activeTab);
   }, [activeTab]);
 
-  const { user, setData, data, setCart, getUserCart } = useContext(CartContext)
+  const { user, setData, data, setCart } = useContext(CartContext)
   const [datas, setDatas] = useState({})
   const [orders, setOrders] = useState([])
   const get = JSON.parse(localStorage.getItem('user'))

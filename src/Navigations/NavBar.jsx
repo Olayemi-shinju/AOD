@@ -11,7 +11,7 @@ import logo from '../assets/Logo.png';
 import axios from 'axios';
 
 const NavBar = () => {
-  const { openCartModal, wishlist, cartData } = useContext(CartContext);
+  const { openCartModal, wishlist, cartData, data } = useContext(CartContext);
   const [open, setOpen] = useState(false);
   const [localUser, setLocalUser] = useState(null);
   const [product, setProduct] = useState([]);
@@ -143,7 +143,7 @@ const NavBar = () => {
               </div>
               <div className='flex flex-col'>
                 <p className={`text-sm ${localUser ? 'text-blue-600' : 'text-gray-500'}`}>
-                  {localUser ? `Hello, ${localUser.name || 'User'}` : 'Welcome Guest'}
+                  {localUser ? `Hello, ${localUser.name || data.name}` : 'Welcome Guest'}
                 </p>
                 <p className={`text-sm font-semibold ${localUser ? 'text-black' : 'text-gray-700'}`}>
                   {localUser ? 'View Profile' : 'Sign in'}
