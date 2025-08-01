@@ -142,9 +142,7 @@ const NavBar = () => {
                 <IoPersonOutline className='text-2xl' />
               </div>
               <div className='flex flex-col'>
-                <p className={`text-sm ${localUser ? 'text-blue-600' : 'text-gray-500'}`}>
-                  {localUser ? `Hello, ${localUser.name || data.name}` : 'Welcome Guest'}
-                </p>
+               <p className='text-2xl font-bold mt-4'>Welcome, {data?.name || 'User'}</p>
                 <p className={`text-sm font-semibold ${localUser ? 'text-black' : 'text-gray-700'}`}>
                   {localUser ? 'View Profile' : 'Sign in'}
                 </p>
