@@ -40,6 +40,7 @@ const Profile = () => {
   // Initialize formData with empty strings
   const [formData, setFormData] = useState({
     name: '',
+    email: '',
     phone: '',
     street: '',
     landmark: ''
@@ -55,6 +56,7 @@ const Profile = () => {
         setDatas(resp.data.data);
         setFormData({
           name: resp.data.data.name || '',
+          email: resp.data.data.email || '',
           phone: resp.data.data.phone || '',
           street: resp.data.data.street || '',
           landmark: resp.data.data.landmark || ''
@@ -88,7 +90,7 @@ const Profile = () => {
 
       setIsLoading(true); // start loader
 
-      const resp = await axios.put(`${VITE_API_BASE_URL}/update-user/${user.id}`, formData, { headers: { Authorization: `Bearer ${token}` } })
+      const resp = await axios.put(`${VITE_API_BASE_URL}/update-user/${user.id}`, formData, { headers: { Authorization: `Bearer: ${token}` } })
       if (resp.data.success === true) {
         toast.success(resp.data.msg)
         setData(resp?.data?.data)
@@ -257,7 +259,7 @@ const Profile = () => {
                 </div>
                 <div className='focus-within:border-blue-500 border-gray-200 w-full mt-4 border-[0.1px] p-3 flex items-center gap-4'>
                   <GoMail/>
-                  <input type="email" value={data.email} placeholder='Email address' className='text-sm p-2 outline-none w-full text-gray-400' />
+                  <input type="email" value={formData.email} placeholder='Email address' className='text-sm p-2 outline-none w-full text-gray-400' />
                 </div>
               </div>
 
