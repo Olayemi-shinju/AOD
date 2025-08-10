@@ -204,13 +204,6 @@ const Shop = () => {
                       <p className='font-semibold'>₦{Number(e.price).toLocaleString()}</p>
                     </div>
                   </div>
-
-                  <button
-                    type="button"
-                    className="mt-2 block w-full text-center lg:hidden bg-black text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-gray-800 transition"
-                  >
-                    Add to Cart
-                  </button>
                 </div>
               ))}
             </div>
